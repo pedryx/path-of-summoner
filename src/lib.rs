@@ -1,28 +1,28 @@
 #![allow(clippy::type_complexity)]
 
 mod audio;
-mod loading;
-mod menu;
+mod battle;
 mod enemy;
 mod health_bar;
-mod stats;
+mod loading;
+mod menu;
 mod minions;
-mod battle;
+mod stats;
 
 use crate::audio::InternalAudioPlugin;
 use crate::loading::LoadingPlugin;
 use crate::menu::MenuPlugin;
 
+use crate::battle::BattlePlugin;
 use crate::enemy::EnemyPlugin;
 use crate::health_bar::HealthBarPlugin;
-use crate::stats::StatsPlugin;
 use crate::minions::MinionsPlugin;
-use  crate::battle::BattlePlugin;
+use crate::stats::StatsPlugin;
 
-use bevy::app::App;
 #[cfg(debug_assertions)]
 use bevy::diagnostic::{FrameTimeDiagnosticsPlugin, LogDiagnosticsPlugin};
 use bevy::prelude::*;
+use bevy::{app::App, window::close_on_esc};
 
 // This example game uses States to separate logic
 // See https://bevy-cheatbook.github.io/programming/states.html
@@ -38,21 +38,31 @@ enum GameState {
     Menu,
 }
 
+#[derive(States, Default, Clone, Eq, PartialEq, Debug, Hash)]
+enum GameScreen {
+    #[default]
+    Other,
+    Battle,
+    Summoning,
+}
+
 pub struct GamePlugin;
 
 impl Plugin for GamePlugin {
     fn build(&self, app: &mut App) {
-        app.init_state::<GameState>().add_plugins((
-            LoadingPlugin,
-            MenuPlugin,
-            InternalAudioPlugin,
-
-            EnemyPlugin,
-            HealthBarPlugin,
-            StatsPlugin,
-            MinionsPlugin,
-            BattlePlugin,
-        ));
+        app.init_state::<GameState>()
+            .init_state::<GameScreen>()
+            .add_systems(Update, close_on_esc) // ToDo
+            .add_plugins((
+                LoadingPlugin,
+                MenuPlugin,
+                InternalAudioPlugin,
+                EnemyPlugin,
+                HealthBarPlugin,
+                StatsPlugin,
+                MinionsPlugin,
+                BattlePlugin,
+            ));
 
         #[cfg(debug_assertions)]
         {
