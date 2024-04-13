@@ -1,4 +1,4 @@
-use crate::{stats::HP, GameState};
+use crate::{stats::Stats, GameState};
 use bevy::{prelude::*, sprite::{MaterialMesh2dBundle, Mesh2dHandle}};
 
 const HEALTH_BAR_BACKGROUND_Z: f32 = 100.;
@@ -40,7 +40,7 @@ fn spawn_health_bars(
     mut commands: Commands, 
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<ColorMaterial>>,
-    mut query: Query<(Entity, &mut HealthBar), With<HP>>
+    mut query: Query<(Entity, &mut HealthBar), With<Stats>>
 ) {
     for (entity, mut health_bar) in query.iter_mut() {
         if health_bar.health_bar_background_entity.is_some() {
@@ -70,7 +70,7 @@ fn spawn_health_bars(
 }
 
 fn update_health_bars(
-    query: Query<(&HealthBar, &HP)>,
+    query: Query<(&HealthBar, &Stats)>,
     mut transform_query: Query<&mut Transform>
 ) {
     for (health_bar, hp) in query.iter() {
@@ -78,7 +78,7 @@ fn update_health_bars(
             continue;
         }
 
-        let value = hp.value / hp.max;
+        let value = hp.current_hp / hp.max_hp;
         if let Ok(mut transform) = transform_query.get_mut(health_bar.health_bar_foreground_entity.unwrap()) {
             transform.scale.x = value;
             transform.translation.x = -(1. - value) * (health_bar.width / 2.);

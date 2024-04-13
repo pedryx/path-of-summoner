@@ -1,8 +1,11 @@
+use crate::battle::BattleParticipant;
+use crate::health_bar::HealthBar;
 use crate::loading::TextureAssets;
+use crate::stats::Stats;
 use crate::GameState;
 use bevy::prelude::*;
 
-const MAX_MINION_COUNT: usize = 4;
+pub const MAX_MINION_COUNT: usize = 4;
 const NDC_SPAWN_AREA_SIZE: f32 = 1.6;
 const NDC_SPAWN_X: f32 = -0.05;
 
@@ -13,6 +16,9 @@ impl Plugin for MinionsPlugin {
         app.add_systems(OnEnter(GameState::Playing), spawn_minions);
     }
 }
+
+#[derive(Component)]
+pub struct Minion;
 
 fn spawn_minions(
     mut commands: Commands,
@@ -25,14 +31,28 @@ fn spawn_minions(
         let ndc_spawn_pos_y = (NDC_SPAWN_AREA_SIZE / (MAX_MINION_COUNT + 2) as f32) * (i + 1) as f32 - 1.;
         let spawn_pos = camera.ndc_to_world(camera_transform, Vec3::new(NDC_SPAWN_X, ndc_spawn_pos_y, 0.)).unwrap();
 
-        commands.spawn(SpriteBundle {
-            texture: textures.bevy.clone(),
-            sprite: Sprite {
-                custom_size: Some(Vec2::splat(64.)),
+        commands.spawn((
+            SpriteBundle {
+                texture: textures.bevy.clone(),
+                sprite: Sprite {
+                    custom_size: Some(Vec2::splat(64.)),
+                    ..default()
+                },
+                transform: Transform::from_translation(spawn_pos),
                 ..default()
             },
-            transform: Transform::from_translation(spawn_pos),
-            ..default()
-        });
+            Minion,
+            BattleParticipant::default(),
+            HealthBar {
+                height: 8.,
+                width: 64.,
+                offset: Vec2::new(0., 64.),
+                ..default()
+            },
+            Stats {
+                damage: 0.8,
+                ..default()
+            },
+        ));
     }
 }

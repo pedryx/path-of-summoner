@@ -1,6 +1,7 @@
+use crate::battle::BattleParticipant;
 use crate::health_bar::HealthBar;
 use crate::loading::TextureAssets;
-use crate::stats::HP;
+use crate::stats::Stats;
 use crate::GameState;
 use bevy::prelude::*;
 
@@ -11,6 +12,9 @@ impl Plugin for EnemyPlugin {
         app.add_systems(OnEnter(GameState::Playing), spawn_enemy);
     }
 }
+
+#[derive(Component)]
+pub struct Enemy;
 
 fn spawn_enemy(
     mut commands: Commands,
@@ -26,12 +30,16 @@ fn spawn_enemy(
             transform: Transform::from_translation(spawn_pos),
             ..default()
         },
-        HP {
-            value: 70.,
+        Stats {
+            damage: 5.,
+            speed: 1.,
+            hp_regeneration: 1.,
             ..default()
         },
         HealthBar {
             ..default()
-        }
+        },
+        Enemy,
+        BattleParticipant::default(),
     ));
 }
