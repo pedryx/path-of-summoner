@@ -6,6 +6,7 @@ mod menu;
 mod enemy;
 mod health_bar;
 mod stats;
+mod minions;
 
 use crate::audio::InternalAudioPlugin;
 use crate::loading::LoadingPlugin;
@@ -14,6 +15,7 @@ use crate::menu::MenuPlugin;
 use crate::enemy::EnemyPlugin;
 use crate::health_bar::HealthBarPlugin;
 //use crate::stats::StatsPlugin;
+use crate::minions::MinionsPlugin;
 
 use bevy::app::App;
 #[cfg(debug_assertions)]
@@ -46,6 +48,7 @@ impl Plugin for GamePlugin {
             EnemyPlugin,
             HealthBarPlugin,
             //StatsPlugin,
+            MinionsPlugin,
         ));
 
         #[cfg(debug_assertions)]
