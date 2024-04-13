@@ -8,6 +8,7 @@ mod loading;
 mod menu;
 mod minions;
 mod stats;
+mod summoning;
 
 use crate::audio::InternalAudioPlugin;
 use crate::loading::LoadingPlugin;
@@ -18,6 +19,7 @@ use crate::enemy::EnemyPlugin;
 use crate::health_bar::HealthBarPlugin;
 use crate::minions::MinionsPlugin;
 use crate::stats::StatsPlugin;
+use crate::summoning::SummoningPlugin;
 
 #[cfg(debug_assertions)]
 use bevy::diagnostic::{FrameTimeDiagnosticsPlugin, LogDiagnosticsPlugin};
@@ -62,6 +64,7 @@ impl Plugin for GamePlugin {
                 StatsPlugin,
                 MinionsPlugin,
                 BattlePlugin,
+                SummoningPlugin,
             ));
 
         #[cfg(debug_assertions)]
