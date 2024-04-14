@@ -1,8 +1,5 @@
 use crate::{
-    enemy::Enemy,
-    minions::{Minion, MAX_MINION_COUNT},
-    stats::Stats,
-    GameScreen, GameState,
+    enemy::Enemy, health_bar::HealthBar, minions::{Minion, MAX_MINION_COUNT}, stats::Stats, GameScreen, GameState
 };
 use bevy::prelude::*;
 use rand::{rngs::StdRng, Rng, SeedableRng};
@@ -11,7 +8,8 @@ pub struct BattlePlugin;
 
 impl Plugin for BattlePlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(
+        app.add_systems(OnEnter(GameScreen::Battle), prepare_battle)
+        .add_systems(
             Update,
             (update_battle)
                 .run_if(in_state(GameState::Playing).and_then(in_state(GameScreen::Battle))),
@@ -31,6 +29,25 @@ struct BattleRng(StdRng);
 
 #[derive(Resource)]
 struct MinionCount(usize);
+
+fn prepare_battle(
+    mut commands: Commands,
+    minion_query: Query<Entity, With<Minion>>,
+    enemy_query: Query<Entity, With<Enemy>>,
+) {
+    for entity in minion_query.iter() {
+        commands.entity(entity).insert((HealthBar::default(), BattleParticipant::default()));
+    }
+
+    commands.entity(enemy_query.single()).insert((
+        HealthBar {
+            width: 256.,
+            offset: Vec2::new(0., 380.),
+            ..Default::default()
+        },
+        BattleParticipant::default()
+    ));
+}
 
 fn update_battle(
     mut commands: Commands,

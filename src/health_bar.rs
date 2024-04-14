@@ -33,9 +33,9 @@ impl Default for HealthBar {
         Self {
             health_bar_background_entity: None,
             health_bar_foreground_entity: None,
-            width: 128.,
+            width: 96.,
             height: 16.,
-            offset: Vec2::new(0., 128.),
+            offset: Vec2::new(0., 96.),
         }
     }
 }

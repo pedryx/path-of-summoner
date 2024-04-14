@@ -531,7 +531,10 @@ fn summon_minion(
     };
     for item in ingredient_items.0.iter() {
         match item.item_type {
-            SummoningItemType::MaxHP => stats.max_hp += 10. * item.tier as f32,
+            SummoningItemType::MaxHP => {
+                stats.max_hp += 10. * item.tier as f32;
+                stats.current_hp += 10. * item.tier as f32;
+            },
             SummoningItemType::HPRegeneration => stats.hp_regeneration += 0.5 * item.tier as f32,
             SummoningItemType::Speed => stats.speed += 1. * item.tier as f32,
             SummoningItemType::Damage => stats.damage += 2. * item.tier as f32,
