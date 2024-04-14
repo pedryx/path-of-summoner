@@ -1,6 +1,6 @@
 use crate::{
     loading::{FontAssets, TextureAssets},
-    minions::{Minion, MAX_MINION_COUNT},
+    minions::{Minion, MAX_MINION_COUNT, MINION_SIZE},
     mouse_control::{Clickable, MouseInfo},
     stats::Stats,
     utils::num_to_roman,
@@ -16,7 +16,7 @@ const SUMMONING_CIRCLE_POS: Vec3 = Vec3::new(0., 220., 0.);
 const MAX_ITEM_COUNT: usize = 10;
 const ITEM_CARD_SIZE: Vec2 = Vec2::new(INVENTORY_SIZE.x, INVENTORY_SIZE.y / MAX_ITEM_COUNT as f32);
 
-const MINIONS_Y: f32 = -400.;
+const MINIONS_Y: f32 = -440.;
 
 pub struct SummoningPlugin;
 
@@ -541,9 +541,9 @@ fn summon_minion(
 
     commands.spawn((
         SpriteBundle {
-            texture: textures.bevy.clone(),
+            texture: textures.minion.clone(),
             sprite: Sprite {
-                custom_size: Some(Vec2::splat(64.)),
+                custom_size: Some(Vec2::splat(MINION_SIZE)),
                 ..Default::default()
             },
             transform: Transform::from_xyz(

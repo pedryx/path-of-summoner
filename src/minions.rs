@@ -9,6 +9,8 @@ pub const MAX_MINION_COUNT: usize = 4;
 const NDC_SPAWN_AREA_SIZE: f32 = 1.6;
 const NDC_SPAWN_X: f32 = -0.05;
 
+pub const MINION_SIZE: f32 = 128.;
+
 pub struct MinionsPlugin;
 
 impl Plugin for MinionsPlugin {
@@ -39,7 +41,7 @@ fn spawn_minions(
 
         commands.spawn((
             SpriteBundle {
-                texture: textures.bevy.clone(),
+                texture: textures.minion.clone(),
                 sprite: Sprite {
                     custom_size: Some(Vec2::splat(64.)),
                     ..default()
