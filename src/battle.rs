@@ -5,7 +5,7 @@ use crate::{
     GameScreen, GameState,
 };
 use bevy::prelude::*;
-use rand::{rngs::ThreadRng, Rng};
+use rand::{rngs::StdRng, Rng, SeedableRng};
 
 pub struct BattlePlugin;
 
@@ -16,7 +16,7 @@ impl Plugin for BattlePlugin {
             (update_battle)
                 .run_if(in_state(GameState::Playing).and_then(in_state(GameScreen::Battle))),
         )
-        .insert_non_send_resource(BattleRng(rand::thread_rng()))
+        .insert_resource(BattleRng(StdRng::from_entropy()))
         .insert_resource(MinionCount(MAX_MINION_COUNT));
     }
 }
@@ -26,7 +26,8 @@ pub struct BattleParticipant {
     pub turn_accumulator: f32,
 }
 
-struct BattleRng(ThreadRng);
+#[derive(Resource)]
+struct BattleRng(StdRng);
 
 #[derive(Resource)]
 struct MinionCount(usize);
@@ -34,7 +35,7 @@ struct MinionCount(usize);
 fn update_battle(
     mut commands: Commands,
     time: Res<Time>,
-    mut battle_rng: NonSendMut<BattleRng>,
+    mut battle_rng: ResMut<BattleRng>,
     mut minion_count: ResMut<MinionCount>,
     mut minion_query: Query<
         (Entity, &mut BattleParticipant, &mut Stats),

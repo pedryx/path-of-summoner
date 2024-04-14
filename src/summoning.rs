@@ -3,6 +3,7 @@ use crate::{
     minions::{Minion, MAX_MINION_COUNT},
     mouse_control::{Clickable, MouseInfo},
     stats::Stats,
+    utils::num_to_roman,
     GameScreen, GameState,
 };
 use bevy::{prelude::*, transform::TransformSystem};
@@ -85,9 +86,9 @@ pub enum SummoningItemType {
 
 #[derive(PartialEq, Eq, PartialOrd, Ord, Clone)]
 pub struct SummoningItem {
-    item_type: SummoningItemType,
-    tier: u8,
-    quantity: usize,
+    pub item_type: SummoningItemType,
+    pub tier: u8,
+    pub quantity: usize,
 }
 
 #[derive(Component)]
@@ -121,7 +122,7 @@ struct IngredientItems(Vec<SummoningItem>);
 struct DragActive(bool);
 
 #[derive(Component)]
-struct SummoningScreenItem;
+struct SummoningScreenEntity;
 
 #[derive(Resource, Default)]
 struct ShouldRecreateItemCards {
@@ -204,20 +205,7 @@ fn spawn_item_card(
         .spawn(Text2dBundle {
             text: Text {
                 sections: vec![TextSection::new(
-                    match item.tier {
-                        0 => "0",
-                        1 => "I",
-                        2 => "II",
-                        3 => "III",
-                        4 => "IV",
-                        5 => "V",
-                        6 => "VI",
-                        7 => "VII",
-                        8 => "VIII",
-                        9 => "IX",
-                        10 => "X",
-                        _ => panic!("Tier not supported!"),
-                    },
+                    num_to_roman(item.tier),
                     TextStyle {
                         color: Color::WHITE,
                         font: fonts.tier_numbers.clone(),
@@ -341,7 +329,7 @@ fn spawn_inventories_and_circle(
             ..Default::default()
         },
         ItemInventory,
-        SummoningScreenItem,
+        SummoningScreenEntity,
     ));
 
     // ingredient inventory
@@ -358,7 +346,7 @@ fn spawn_inventories_and_circle(
             ..Default::default()
         },
         IngredientInventory,
-        SummoningScreenItem,
+        SummoningScreenEntity,
     ));
 
     // Summoning circle
@@ -374,7 +362,7 @@ fn spawn_inventories_and_circle(
         },
         Clickable::default(),
         SummoningCircle,
-        SummoningScreenItem,
+        SummoningScreenEntity,
     ));
 
     // ready button
@@ -392,7 +380,7 @@ fn spawn_inventories_and_circle(
             },
             Clickable::default(),
             ReadyButton,
-            SummoningScreenItem,
+            SummoningScreenEntity,
         ))
         .with_children(|parent| {
             parent.spawn(Text2dBundle {
@@ -575,18 +563,22 @@ fn summon_minion(
 
 fn move_to_preparation_screen(
     mut next_screen: ResMut<NextState<GameScreen>>,
-    query: Query<&Clickable, With<ReadyButton>>,
+    button_query: Query<&Clickable, With<ReadyButton>>,
+    minion_query: Query<(), With<Minion>>,
 ) {
-    let clickable = query.single();
+    let clickable = button_query.single();
 
-    if !clickable.just_clicked {
+    if !clickable.just_clicked || minion_query.iter().next().is_none() {
         return;
     }
 
-    next_screen.set(GameScreen::Preperation);
+    next_screen.set(GameScreen::Planning);
 }
 
-fn clean_summoning_screen(mut commands: Commands, query: Query<Entity, With<SummoningScreenItem>>) {
+fn clean_summoning_screen(
+    mut commands: Commands,
+    query: Query<Entity, With<SummoningScreenEntity>>,
+) {
     for entity in query.iter() {
         commands.entity(entity).despawn_recursive();
     }

@@ -2,6 +2,7 @@ use crate::battle::BattleParticipant;
 use crate::health_bar::HealthBar;
 use crate::loading::TextureAssets;
 use crate::stats::Stats;
+use crate::summoning::SummoningItem;
 use crate::GameScreen;
 use bevy::prelude::*;
 
@@ -15,6 +16,9 @@ impl Plugin for EnemyPlugin {
 
 #[derive(Component)]
 pub struct Enemy;
+
+#[derive(Component, Clone)]
+pub struct DropRewards(pub Vec<SummoningItem>);
 
 fn spawn_enemy(
     mut commands: Commands,

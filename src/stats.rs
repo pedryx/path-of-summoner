@@ -13,7 +13,7 @@ impl Plugin for StatsPlugin {
     }
 }
 
-#[derive(Component)]
+#[derive(Component, Clone)]
 pub struct Stats {
     pub current_hp: f32,
     pub max_hp: f32,

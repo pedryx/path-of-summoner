@@ -8,8 +8,10 @@ mod loading;
 mod menu;
 mod minions;
 mod mouse_control;
+mod planning_screeen;
 mod stats;
 mod summoning;
+mod utils;
 
 use crate::audio::InternalAudioPlugin;
 use crate::loading::LoadingPlugin;
@@ -20,6 +22,7 @@ use crate::enemy::EnemyPlugin;
 use crate::health_bar::HealthBarPlugin;
 use crate::minions::MinionsPlugin;
 use crate::mouse_control::MouseControlPlugin;
+use crate::planning_screeen::PlanningScreenPlugin;
 use crate::stats::StatsPlugin;
 use crate::summoning::SummoningPlugin;
 
@@ -48,8 +51,11 @@ enum GameScreen {
     Other,
     Battle,
     Summoning,
-    Preperation,
+    Planning,
 }
+
+#[derive(Resource, Default)]
+pub struct BattleCount(usize);
 
 pub struct GamePlugin;
 
@@ -57,6 +63,7 @@ impl Plugin for GamePlugin {
     fn build(&self, app: &mut App) {
         app.init_state::<GameState>()
             .init_state::<GameScreen>()
+            .insert_resource(BattleCount(1))
             .add_systems(Update, close_on_esc) // ToDo
             .add_plugins((
                 LoadingPlugin,
@@ -69,6 +76,7 @@ impl Plugin for GamePlugin {
                 BattlePlugin,
                 SummoningPlugin,
                 MouseControlPlugin,
+                PlanningScreenPlugin,
             ));
 
         #[cfg(debug_assertions)]
