@@ -325,7 +325,7 @@ fn handle_enemy_selection(
     query: Query<(&Clickable, &Stats, &DropRewards), With<EnemyCard>>,
 ) {
     for (clickable, stats, drop_rewards) in query.iter() {
-        if !clickable.just_clicked {
+        if !clickable.just_left_clicked {
             continue;
         }
 

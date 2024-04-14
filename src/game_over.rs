@@ -181,7 +181,7 @@ fn handle_menu_button(
 ) {
     let clickable = query.single();
 
-    if !clickable.just_clicked {
+    if !clickable.just_left_clicked {
         return;
     }
 

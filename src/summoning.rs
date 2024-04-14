@@ -499,7 +499,7 @@ fn summon_minion(
     let clickable = summoning_circle_query.single();
     let minion_count = minion_query.iter().count();
 
-    let is_clicked = clickable.just_clicked;
+    let is_clicked = clickable.just_left_clicked;
     let free_slot_exist = minion_count < MAX_MINION_COUNT;
     let at_least_one_ingredient_used = ingredient_items.0.first().is_some();
     if !is_clicked || !free_slot_exist || !at_least_one_ingredient_used {
@@ -543,6 +543,7 @@ fn summon_minion(
         Minion,
         stats,
         HealthBar::default(),
+        Clickable::default(),
     ));
 
     statistics.summoned_minions += 1;
@@ -559,7 +560,7 @@ fn move_to_preparation_screen(
 ) {
     let clickable = button_query.single();
 
-    if !clickable.just_clicked || minion_query.iter().next().is_none() {
+    if !clickable.just_left_clicked || minion_query.iter().next().is_none() {
         return;
     }
 
@@ -636,7 +637,7 @@ fn unmake_minions_clickable(mut commands: Commands, query: Query<Entity, With<Mi
 
 fn handle_remove_minion(mut commands: Commands, query: Query<(Entity, &Clickable), With<Minion>>) {
     for (entity, clickable) in query.iter() {
-        if !clickable.just_clicked {
+        if !clickable.just_right_clicked {
             continue;
         }
 

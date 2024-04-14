@@ -16,14 +16,16 @@ impl Plugin for MouseControlPlugin {
 
 #[derive(Component, Default)]
 pub struct Clickable {
-    pub just_clicked: bool,
+    pub just_left_clicked: bool,
+    pub just_right_clicked: bool,
 }
 
 #[derive(Resource, Default)]
 pub struct MouseInfo {
     pub position: Vec2,
     pub pressed: bool,
-    pub just_pressed: bool,
+    pub just_left_pressed: bool,
+    pub just_right_pressed: bool,
 }
 
 fn update_mouse_info(
@@ -42,7 +44,8 @@ fn update_mouse_info(
 
     mouse_info.position = position;
     mouse_info.pressed = buttons.pressed(MouseButton::Left);
-    mouse_info.just_pressed = buttons.just_pressed(MouseButton::Left);
+    mouse_info.just_left_pressed = buttons.just_pressed(MouseButton::Left);
+    mouse_info.just_right_pressed = buttons.just_pressed(MouseButton::Right);
 }
 
 fn update_clickables(
@@ -51,11 +54,8 @@ fn update_clickables(
     mut query: Query<(&mut Clickable, &GlobalTransform, &Handle<Image>, &Sprite)>,
 ) {
     for (mut clickable, _, _, _) in query.iter_mut() {
-        clickable.just_clicked = false;
-    }
-
-    if !mouse_info.just_pressed {
-        return;
+        clickable.just_left_clicked = false;
+        clickable.just_right_clicked = false;
     }
 
     for (mut clickable, transform, image_handle, sprite) in query.iter_mut() {
@@ -74,7 +74,12 @@ fn update_clickables(
             max: transform.translation.xy() + size / 2.,
         };
         if rect.contains(mouse_info.position) {
-            clickable.just_clicked = true;
+            clickable.just_left_clicked = mouse_info.just_left_pressed;
+            clickable.just_right_clicked = mouse_info.just_right_pressed;
+
+            if mouse_info.just_right_pressed {
+                println!("right pressed!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+            }
         }
     }
 }
