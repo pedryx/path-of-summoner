@@ -194,7 +194,7 @@ fn spawn_enemy_cards(
     fonts: Res<FontAssets>,
     battle_count: Res<BattleCount>,
 ) {
-    let card_count = planning_rng.0.gen_range(1..MAX_CARD_COUNT);
+    let card_count = planning_rng.0.gen_range(1..=MAX_CARD_COUNT);
 
     for i in 0..card_count {
         let damage_tier = planning_rng
@@ -223,7 +223,7 @@ fn spawn_enemy_cards(
             ..Default::default()
         };
 
-        let reward_count = planning_rng.0.gen_range(1..MAX_REWARD_COUNT);
+        let reward_count = planning_rng.0.gen_range(1..=MAX_REWARD_COUNT);
         let mut rewards = DropRewards(Vec::new());
         for _ in 0..reward_count {
             rewards.0.push(SummoningItem {
@@ -305,9 +305,9 @@ fn spawn_enemy_cards(
                 spawn_icon(
                     parent,
                     fonts.tier_numbers.clone(),
-                    textures.hearth_icon.clone(),
+                    textures.hp_regeneration_icon.clone(),
                     position,
-                    hp_tier,
+                    hp_regeneration_tier,
                 );
 
                 // reward cards
