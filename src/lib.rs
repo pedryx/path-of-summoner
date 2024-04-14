@@ -8,10 +8,11 @@ mod loading;
 mod menu;
 mod minions;
 mod mouse_control;
-mod planning_screeen;
+mod planning_screen;
 mod stats;
 mod summoning;
 mod utils;
+mod statistics;
 
 use crate::audio::InternalAudioPlugin;
 use crate::loading::LoadingPlugin;
@@ -22,9 +23,10 @@ use crate::enemy::EnemyPlugin;
 use crate::health_bar::HealthBarPlugin;
 use crate::minions::MinionsPlugin;
 use crate::mouse_control::MouseControlPlugin;
-use crate::planning_screeen::PlanningScreenPlugin;
+use crate::planning_screen::PlanningScreenPlugin;
 use crate::stats::StatsPlugin;
 use crate::summoning::SummoningPlugin;
+use crate::statistics::StatisticsPlugin;
 
 #[cfg(debug_assertions)]
 use bevy::diagnostic::{FrameTimeDiagnosticsPlugin, LogDiagnosticsPlugin};
@@ -78,6 +80,7 @@ impl Plugin for GamePlugin {
                 SummoningPlugin,
                 MouseControlPlugin,
                 PlanningScreenPlugin,
+                StatisticsPlugin,
             ));
 
         #[cfg(debug_assertions)]
