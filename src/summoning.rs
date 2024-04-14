@@ -550,6 +550,8 @@ fn summon_minion(
 }
 
 fn move_to_preparation_screen(
+    mut inventory_items: ResMut<InventoryItems>,
+    mut ingredient_items: ResMut<IngredientItems>,
     mut next_screen: ResMut<NextState<GameScreen>>,
     button_query: Query<&Clickable, With<ReadyButton>>,
     minion_query: Query<(), With<Minion>>,
@@ -561,6 +563,19 @@ fn move_to_preparation_screen(
     }
 
     next_screen.set(GameScreen::Planning);
+
+    for ingredient_item in ingredient_items.0.iter() {
+        if let Some(item) = inventory_items
+            .0
+            .iter_mut()
+            .find(|item| item.item_type == ingredient_item.item_type && item.tier == ingredient_item.tier)
+        {
+            item.quantity += ingredient_item.quantity;
+        } else {
+            inventory_items.0.push(ingredient_item.clone());
+        }
+    }
+    ingredient_items.0.clear();
 }
 
 fn clean_summoning_screen(

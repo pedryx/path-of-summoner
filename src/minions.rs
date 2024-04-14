@@ -2,7 +2,7 @@ use crate::GameScreen;
 use bevy::prelude::*;
 
 pub const MAX_MINION_COUNT: usize = 4;
-const NDC_SPAWN_AREA_SIZE: f32 = 1.6;
+const NDC_SPAWN_AREA_SIZE: f32 = 2.0;
 const NDC_SPAWN_X: f32 = -0.2;
 
 pub const MINION_SIZE: f32 = 128.;

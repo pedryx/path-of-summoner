@@ -121,8 +121,7 @@ fn handle_enemy_dead(
             item.quantity += reward_item.quantity;
         } else {
             inventory_items.0.push(reward_item.clone());
-            continue;
-        };
+        }
     }
 
     // battle win
