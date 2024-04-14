@@ -215,11 +215,11 @@ fn spawn_enemy_cards(
             .min(10) as u8;
 
         let stats = Stats {
-            current_hp: hp_tier as f32 * 15.,
-            max_hp: hp_tier as f32 * 15.,
-            hp_regeneration: hp_regeneration_tier as f32 * 1.5,
-            damage: damage_tier as f32 * 6.,
-            speed: speed_tier as f32 * 1.5,
+            current_hp: hp_tier as f32 * 10.,
+            max_hp: hp_tier as f32 * 10.,
+            hp_regeneration: hp_regeneration_tier as f32 * 1.,
+            damage: damage_tier as f32 * 4.,
+            speed: speed_tier as f32 * 1.,
             ..Default::default()
         };
 
