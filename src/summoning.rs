@@ -27,6 +27,16 @@ impl Plugin for SummoningPlugin {
                 tier: 4,
                 quantity: 1,
             },
+            SummoningItem {
+                item_type: SummoningItemType::HPRegeneration,
+                tier: 8,
+                quantity: 6,
+            },
+            SummoningItem {
+                item_type: SummoningItemType::MaxHP,
+                tier: 10,
+                quantity: 9,
+            },
         ]))
         .init_resource::<IngredientItems>()
         .insert_resource(ShouldRecreateItemCards {
@@ -63,6 +73,8 @@ impl Plugin for SummoningPlugin {
 pub enum SummoningItemType {
     Damage,
     Speed,
+    MaxHP,
+    HPRegeneration,
 }
 
 #[derive(PartialEq, Eq, PartialOrd, Ord, Clone)]
@@ -139,7 +151,7 @@ fn spawn_item_card(
             SpriteBundle {
                 texture: textures.square.clone(),
                 sprite: Sprite {
-                    color: Color::GRAY.with_a(0.5),
+                    color: Color::GRAY,
                     custom_size: Some(ITEM_CARD_SIZE),
                     ..Default::default()
                 },
@@ -234,9 +246,11 @@ fn spawn_item_card(
             texture: match item.item_type {
                 SummoningItemType::Damage => textures.sword_icon.clone(),
                 SummoningItemType::Speed => textures.boot_icon.clone(),
+                SummoningItemType::MaxHP => textures.hearth_icon.clone(),
+                SummoningItemType::HPRegeneration => textures.hp_regeneration_icon.clone(),
             },
             sprite: Sprite {
-                color: Color::WHITE,
+                color: Color::CYAN,
                 custom_size: Some(Vec2::splat(ITEM_CARD_SIZE.y * 0.7)),
                 anchor: bevy::sprite::Anchor::CenterLeft,
                 ..Default::default()

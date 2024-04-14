@@ -56,4 +56,8 @@ pub struct TextureAssets {
     pub sword_icon: Handle<Image>,
     #[asset(path = "textures/icons/boot_icon.png")]
     pub boot_icon: Handle<Image>,
+    #[asset(path = "textures/icons/hearth_icon.png")]
+    pub hearth_icon: Handle<Image>,
+    #[asset(path = "textures/icons/hp_regeneration_icon.png")]
+    pub hp_regeneration_icon: Handle<Image>,
 }
