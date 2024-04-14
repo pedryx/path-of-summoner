@@ -1,11 +1,5 @@
 use crate::{
-    health_bar::HealthBar,
-    loading::{FontAssets, TextureAssets},
-    minions::{Minion, MAX_MINION_COUNT, MINION_SIZE},
-    mouse_control::{Clickable, MouseInfo},
-    stats::Stats,
-    utils::num_to_roman,
-    BattleCount, GameScreen, GameState,
+    health_bar::HealthBar, loading::{FontAssets, TextureAssets}, minions::{Minion, MAX_MINION_COUNT, MINION_SIZE}, mouse_control::{Clickable, MouseInfo}, statistics::Statistics, stats::Stats, utils::num_to_roman, BattleCount, GameScreen, GameState
 };
 use bevy::{prelude::*, transform::TransformSystem};
 
@@ -14,7 +8,7 @@ const INVENTORY_SIZE: Vec2 = Vec2::new(600., 800.);
 const INGREDIENTS_POS: Vec3 = Vec3::new(1920. / 4. + 128., 1080. / 2. - 64., 0.);
 const SUMMONING_CIRCLE_POS: Vec3 = Vec3::new(0., 220., 0.);
 
-const MAX_ITEM_COUNT: usize = 10;
+pub const MAX_ITEM_COUNT: usize = 10;
 const ITEM_CARD_SIZE: Vec2 = Vec2::new(INVENTORY_SIZE.x, INVENTORY_SIZE.y / MAX_ITEM_COUNT as f32);
 
 const MINIONS_Y: f32 = -460.;
@@ -498,6 +492,7 @@ fn summon_minion(
     textures: Res<TextureAssets>,
     mut ingredient_items: ResMut<IngredientItems>,
     mut should_recreate_item_cards: ResMut<ShouldRecreateItemCards>,
+    mut statistics: ResMut<Statistics>,
     summoning_circle_query: Query<&Clickable, With<SummoningCircle>>,
     minion_query: Query<(), With<Minion>>,
 ) {
@@ -550,6 +545,7 @@ fn summon_minion(
         HealthBar::default(),
     ));
 
+    statistics.summoned_minions += 1;
     ingredient_items.0.clear();
     should_recreate_item_cards.should_recreate_ingredient_items = true;
 }

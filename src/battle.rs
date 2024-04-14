@@ -3,7 +3,7 @@ use crate::{
     health_bar::HealthBar,
     minions::Minion,
     stats::Stats,
-    summoning::InventoryItems,
+    summoning::{InventoryItems, MAX_ITEM_COUNT},
     BattleCount, GameScreen, GameState,
 };
 use bevy::prelude::*;
@@ -120,7 +120,9 @@ fn handle_enemy_dead(
         {
             item.quantity += reward_item.quantity;
         } else {
-            inventory_items.0.push(reward_item.clone());
+            if inventory_items.0.len() < MAX_ITEM_COUNT {
+                inventory_items.0.push(reward_item.clone());
+            }
         }
     }
 

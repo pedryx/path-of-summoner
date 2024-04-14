@@ -199,27 +199,27 @@ fn spawn_enemy_cards(
     for i in 0..card_count {
         let damage_tier = planning_rng
             .0
-            .gen_range(1..(battle_count.0 / 3 + 2))
+            .gen_range(1..(battle_count.0 / 2 + 2))
             .min(10) as u8;
         let speed_tier = planning_rng
             .0
-            .gen_range(1..(battle_count.0 / 3 + 2))
+            .gen_range(1..(battle_count.0 / 2 + 2))
             .min(10) as u8;
         let hp_tier = planning_rng
             .0
-            .gen_range(1..(battle_count.0 / 3 + 2))
+            .gen_range(1..(battle_count.0 / 2 + 2))
             .min(10) as u8;
         let hp_regeneration_tier = planning_rng
             .0
-            .gen_range(0..(battle_count.0 / 3 + 1))
+            .gen_range(0..(battle_count.0 / 2 + 1))
             .min(10) as u8;
 
         let stats = Stats {
-            current_hp: hp_tier as f32 * 10.,
-            max_hp: hp_tier as f32 * 10.,
-            hp_regeneration: hp_regeneration_tier as f32 * 1.,
-            damage: damage_tier as f32 * 4.,
-            speed: speed_tier as f32 * 1.,
+            current_hp: hp_tier as f32 * 15.,
+            max_hp: hp_tier as f32 * 15.,
+            hp_regeneration: hp_regeneration_tier as f32 * 1.5,
+            damage: damage_tier as f32 * 6.,
+            speed: speed_tier as f32 * 1.5,
             ..Default::default()
         };
 
