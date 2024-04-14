@@ -32,7 +32,7 @@ fn spawn_enemy(
 
     commands.spawn((
         SpriteBundle {
-            texture: textures.bevy.clone(),
+            texture: textures.enemy1.clone(),
             transform: Transform::from_translation(spawn_pos),
             ..default()
         },

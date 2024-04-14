@@ -331,7 +331,7 @@ fn handle_enemy_selection(
 
         commands.spawn((
             SpriteBundle {
-                texture: textures.bevy.clone(),
+                texture: textures.enemy1.clone(),
                 ..default()
             },
             stats.clone(),

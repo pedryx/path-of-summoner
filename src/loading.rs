@@ -50,6 +50,8 @@ pub struct TextureAssets {
     pub summoning_circle: Handle<Image>,
     #[asset(path = "textures/minion.png")]
     pub minion: Handle<Image>,
+    #[asset(path = "textures/enemy1.png")]
+    pub enemy1: Handle<Image>,
 
     #[asset(path = "textures/square.png")]
     pub square: Handle<Image>,
