@@ -7,6 +7,7 @@ mod health_bar;
 mod loading;
 mod menu;
 mod minions;
+mod mouse_control;
 mod stats;
 mod summoning;
 
@@ -18,6 +19,7 @@ use crate::battle::BattlePlugin;
 use crate::enemy::EnemyPlugin;
 use crate::health_bar::HealthBarPlugin;
 use crate::minions::MinionsPlugin;
+use crate::mouse_control::MouseControlPlugin;
 use crate::stats::StatsPlugin;
 use crate::summoning::SummoningPlugin;
 
@@ -65,6 +67,7 @@ impl Plugin for GamePlugin {
                 MinionsPlugin,
                 BattlePlugin,
                 SummoningPlugin,
+                MouseControlPlugin,
             ));
 
         #[cfg(debug_assertions)]

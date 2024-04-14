@@ -1,8 +1,9 @@
 use crate::{
     loading::{FontAssets, TextureAssets},
+    mouse_control::MouseInfo,
     GameScreen, GameState,
 };
-use bevy::{prelude::*, transform::TransformSystem, window::PrimaryWindow};
+use bevy::{prelude::*, transform::TransformSystem};
 
 const INVENTORY_POS: Vec3 = Vec3::new(-1920. / 4. - 128., 1080. / 2. - 64., 0.);
 const INVENTORY_SIZE: Vec2 = Vec2::new(600., 800.);
@@ -44,12 +45,7 @@ impl Plugin for SummoningPlugin {
             should_recreate_inventory_items: true,
         })
         .init_resource::<DragActive>()
-        .init_resource::<MouseInfo>()
         .add_systems(OnEnter(GameScreen::Summoning), spawn_inventories_and_circle)
-        .add_systems(
-            Update,
-            update_mouse_info.run_if(in_state(GameState::Playing)),
-        )
         .add_systems(
             Update,
             (
@@ -112,30 +108,6 @@ struct DragActive(bool);
 struct ShouldRecreateItemCards {
     should_recreate_inventory_items: bool,
     should_recreate_ingredient_items: bool,
-}
-
-#[derive(Resource, Default)]
-struct MouseInfo {
-    position: Vec2,
-    pressed: bool,
-}
-
-fn update_mouse_info(
-    buttons: Res<ButtonInput<MouseButton>>,
-    window: Query<&Window, With<PrimaryWindow>>,
-    camera: Query<(&Camera, &GlobalTransform), With<Camera2d>>,
-    mut mouse_info: ResMut<MouseInfo>,
-) {
-    let (camera, camera_transform) = camera.single();
-    let Some(position) = window.single().cursor_position() else {
-        return;
-    };
-    let position = camera
-        .viewport_to_world_2d(camera_transform, position)
-        .unwrap();
-
-    mouse_info.position = position;
-    mouse_info.pressed = buttons.pressed(MouseButton::Left);
 }
 
 fn spawn_item_card(
