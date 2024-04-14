@@ -1,6 +1,8 @@
 use crate::{
     loading::{FontAssets, TextureAssets},
-    mouse_control::MouseInfo,
+    minions::Minion,
+    mouse_control::{Clickable, MouseInfo},
+    stats::Stats,
     GameScreen, GameState,
 };
 use bevy::{prelude::*, transform::TransformSystem};
@@ -8,10 +10,12 @@ use bevy::{prelude::*, transform::TransformSystem};
 const INVENTORY_POS: Vec3 = Vec3::new(-1920. / 4. - 128., 1080. / 2. - 64., 0.);
 const INVENTORY_SIZE: Vec2 = Vec2::new(600., 800.);
 const INGREDIENTS_POS: Vec3 = Vec3::new(1920. / 4. + 128., 1080. / 2. - 64., 0.);
-const SUMMONING_CURCLE_POS: Vec3 = Vec3::new(0., 64., 0.);
+const SUMMONING_CIRCLE_POS: Vec3 = Vec3::new(0., 64., 0.);
 
 const MAX_ITEM_COUNT: usize = 10;
 const ITEM_CARD_SIZE: Vec2 = Vec2::new(INVENTORY_SIZE.x, INVENTORY_SIZE.y / MAX_ITEM_COUNT as f32);
+
+const MAX_MINION_COUNT: usize = 8;
 
 pub struct SummoningPlugin;
 
@@ -53,6 +57,7 @@ impl Plugin for SummoningPlugin {
                 spawn_ingredient_cards,
                 handle_drag_move,
                 handle_drag_end,
+                summon_minion,
             )
                 .run_if(in_state(GameState::Playing).and_then(in_state(GameScreen::Summoning))),
         )
@@ -94,6 +99,9 @@ struct DragItem(usize);
 
 #[derive(Component)]
 struct Draggable;
+
+#[derive(Component)]
+struct SummoningCircle;
 
 #[derive(Resource, Default)]
 struct InventoryItems(Vec<SummoningItem>);
@@ -337,15 +345,19 @@ fn spawn_inventories_and_circle(mut commands: Commands, textures: Res<TextureAss
     ));
 
     // Summoning circle
-    commands.spawn(SpriteBundle {
-        texture: textures.summoning_circle.clone(),
-        transform: Transform::from_translation(SUMMONING_CURCLE_POS),
-        sprite: Sprite {
-            color: Color::PURPLE,
+    commands.spawn((
+        SpriteBundle {
+            texture: textures.summoning_circle.clone(),
+            transform: Transform::from_translation(SUMMONING_CIRCLE_POS),
+            sprite: Sprite {
+                color: Color::PURPLE,
+                ..Default::default()
+            },
             ..Default::default()
         },
-        ..Default::default()
-    });
+        Clickable::default(),
+        SummoningCircle,
+    ));
 }
 
 fn handle_drag_start(
@@ -424,8 +436,8 @@ fn handle_drag_end(
     drag_active.0 = false;
 
     let rect = Rect {
-        min: SUMMONING_CURCLE_POS.xy() - Vec2::splat(256.),
-        max: SUMMONING_CURCLE_POS.xy() + Vec2::splat(256.),
+        min: SUMMONING_CIRCLE_POS.xy() - Vec2::splat(256.),
+        max: SUMMONING_CIRCLE_POS.xy() + Vec2::splat(256.),
     };
     if !rect.contains(mouse_info.position) {
         return;
@@ -447,5 +459,62 @@ fn handle_drag_end(
     }
 
     should_recreate_item_cards.should_recreate_inventory_items = true;
+    should_recreate_item_cards.should_recreate_ingredient_items = true;
+}
+
+fn summon_minion(
+    mut commands: Commands,
+    textures: Res<TextureAssets>,
+    mut ingredient_items: ResMut<IngredientItems>,
+    mut should_recreate_item_cards: ResMut<ShouldRecreateItemCards>,
+    summoning_circle_query: Query<&Clickable, With<SummoningCircle>>,
+    minion_query: Query<(), With<Minion>>,
+) {
+    let clickable = summoning_circle_query.single();
+    let minion_count = minion_query.iter().count();
+
+    let is_clicked = clickable.just_clicked;
+    let free_slot_exist = minion_count < MAX_MINION_COUNT;
+    let at_least_one_ingredient_used = ingredient_items.0.first().is_some();
+    if !is_clicked || !free_slot_exist || !at_least_one_ingredient_used {
+        return;
+    }
+
+    let mut stats = Stats {
+        current_hp: 10.,
+        max_hp: 10.,
+        speed: 1.,
+        damage: 1.,
+        ..Default::default()
+    };
+    for item in ingredient_items.0.iter() {
+        match item.item_type {
+            SummoningItemType::MaxHP => stats.max_hp += 10. * item.tier as f32,
+            SummoningItemType::HPRegeneration => stats.hp_regeneration += 0.5 * item.tier as f32,
+            SummoningItemType::Speed => stats.speed += 1. * item.tier as f32,
+            SummoningItemType::Damage => stats.damage += 2. * item.tier as f32,
+        }
+    }
+    let stats = stats;
+
+    commands.spawn((
+        SpriteBundle {
+            texture: textures.bevy.clone(),
+            sprite: Sprite {
+                custom_size: Some(Vec2::splat(64.)),
+                ..Default::default()
+            },
+            transform: Transform::from_xyz(
+                1920. / (MAX_MINION_COUNT as f32 + 2.) * (minion_count as f32 + 1.) - 1920. / 2.,
+                -400.,
+                0.,
+            ),
+            ..Default::default()
+        },
+        Minion,
+        stats,
+    ));
+
+    ingredient_items.0.clear();
     should_recreate_item_cards.should_recreate_ingredient_items = true;
 }

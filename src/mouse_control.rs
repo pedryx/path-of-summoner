@@ -15,7 +15,7 @@ impl Plugin for MouseControlPlugin {
 
 #[derive(Component, Default)]
 pub struct Clickable {
-    just_clicked: bool,
+    pub just_clicked: bool,
 }
 
 #[derive(Resource, Default)]
