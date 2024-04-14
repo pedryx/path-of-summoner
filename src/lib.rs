@@ -48,6 +48,7 @@ enum GameScreen {
     Other,
     Battle,
     Summoning,
+    Preperation,
 }
 
 pub struct GamePlugin;

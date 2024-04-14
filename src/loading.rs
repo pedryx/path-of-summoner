@@ -29,6 +29,8 @@ pub struct FontAssets {
     pub quantity_numbers: Handle<Font>,
     #[asset(path = "fonts/SCARY OF HORROR.otf")]
     pub tier_numbers: Handle<Font>,
+    #[asset(path = "fonts/MQSMagic.ttf")]
+    pub texts: Handle<Font>,
 }
 
 #[derive(AssetCollection, Resource)]

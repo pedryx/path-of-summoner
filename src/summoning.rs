@@ -1,6 +1,6 @@
 use crate::{
     loading::{FontAssets, TextureAssets},
-    minions::Minion,
+    minions::{Minion, MAX_MINION_COUNT},
     mouse_control::{Clickable, MouseInfo},
     stats::Stats,
     GameScreen, GameState,
@@ -10,12 +10,12 @@ use bevy::{prelude::*, transform::TransformSystem};
 const INVENTORY_POS: Vec3 = Vec3::new(-1920. / 4. - 128., 1080. / 2. - 64., 0.);
 const INVENTORY_SIZE: Vec2 = Vec2::new(600., 800.);
 const INGREDIENTS_POS: Vec3 = Vec3::new(1920. / 4. + 128., 1080. / 2. - 64., 0.);
-const SUMMONING_CIRCLE_POS: Vec3 = Vec3::new(0., 64., 0.);
+const SUMMONING_CIRCLE_POS: Vec3 = Vec3::new(0., 220., 0.);
 
 const MAX_ITEM_COUNT: usize = 10;
 const ITEM_CARD_SIZE: Vec2 = Vec2::new(INVENTORY_SIZE.x, INVENTORY_SIZE.y / MAX_ITEM_COUNT as f32);
 
-const MAX_MINION_COUNT: usize = 8;
+const MINIONS_Y: f32 = -400.;
 
 pub struct SummoningPlugin;
 
@@ -49,7 +49,11 @@ impl Plugin for SummoningPlugin {
             should_recreate_inventory_items: true,
         })
         .init_resource::<DragActive>()
-        .add_systems(OnEnter(GameScreen::Summoning), spawn_inventories_and_circle)
+        .add_systems(
+            OnEnter(GameScreen::Summoning),
+            (spawn_inventories_and_circle, reposition_minions),
+        )
+        .add_systems(OnExit(GameScreen::Summoning), clean_summoning_screen)
         .add_systems(
             Update,
             (
@@ -58,6 +62,7 @@ impl Plugin for SummoningPlugin {
                 handle_drag_move,
                 handle_drag_end,
                 summon_minion,
+                move_to_preparation_screen,
             )
                 .run_if(in_state(GameState::Playing).and_then(in_state(GameScreen::Summoning))),
         )
@@ -103,6 +108,9 @@ struct Draggable;
 #[derive(Component)]
 struct SummoningCircle;
 
+#[derive(Component)]
+struct ReadyButton;
+
 #[derive(Resource, Default)]
 struct InventoryItems(Vec<SummoningItem>);
 
@@ -111,6 +119,9 @@ struct IngredientItems(Vec<SummoningItem>);
 
 #[derive(Resource, Default)]
 struct DragActive(bool);
+
+#[derive(Component)]
+struct SummoningScreenItem;
 
 #[derive(Resource, Default)]
 struct ShouldRecreateItemCards {
@@ -311,7 +322,11 @@ fn spawn_ingredient_cards(
     recreate_items.should_recreate_ingredient_items = false;
 }
 
-fn spawn_inventories_and_circle(mut commands: Commands, textures: Res<TextureAssets>) {
+fn spawn_inventories_and_circle(
+    mut commands: Commands,
+    textures: Res<TextureAssets>,
+    fonts: Res<FontAssets>,
+) {
     // item inventory
     commands.spawn((
         SpriteBundle {
@@ -326,6 +341,7 @@ fn spawn_inventories_and_circle(mut commands: Commands, textures: Res<TextureAss
             ..Default::default()
         },
         ItemInventory,
+        SummoningScreenItem,
     ));
 
     // ingredient inventory
@@ -342,6 +358,7 @@ fn spawn_inventories_and_circle(mut commands: Commands, textures: Res<TextureAss
             ..Default::default()
         },
         IngredientInventory,
+        SummoningScreenItem,
     ));
 
     // Summoning circle
@@ -357,7 +374,44 @@ fn spawn_inventories_and_circle(mut commands: Commands, textures: Res<TextureAss
         },
         Clickable::default(),
         SummoningCircle,
+        SummoningScreenItem,
     ));
+
+    // ready button
+    commands
+        .spawn((
+            SpriteBundle {
+                texture: textures.square.clone(),
+                sprite: Sprite {
+                    custom_size: Some(Vec2::new(384., 128.)),
+                    color: Color::DARK_GRAY,
+                    ..Default::default()
+                },
+                transform: Transform::from_xyz(0., -255., 0.),
+                ..Default::default()
+            },
+            Clickable::default(),
+            ReadyButton,
+            SummoningScreenItem,
+        ))
+        .with_children(|parent| {
+            parent.spawn(Text2dBundle {
+                text: Text {
+                    sections: vec![TextSection {
+                        value: "Ready".to_string(),
+                        style: TextStyle {
+                            font: fonts.texts.clone(),
+                            font_size: 96.,
+                            color: Color::WHITE,
+                        },
+                    }],
+                    justify: JustifyText::Center,
+                    ..Default::default()
+                },
+                transform: Transform::from_xyz(0., 0., 1.),
+                ..Default::default()
+            });
+        });
 }
 
 fn handle_drag_start(
@@ -506,7 +560,7 @@ fn summon_minion(
             },
             transform: Transform::from_xyz(
                 1920. / (MAX_MINION_COUNT as f32 + 2.) * (minion_count as f32 + 1.) - 1920. / 2.,
-                -400.,
+                MINIONS_Y,
                 0.,
             ),
             ..Default::default()
@@ -517,4 +571,33 @@ fn summon_minion(
 
     ingredient_items.0.clear();
     should_recreate_item_cards.should_recreate_ingredient_items = true;
+}
+
+fn move_to_preparation_screen(
+    mut next_screen: ResMut<NextState<GameScreen>>,
+    query: Query<&Clickable, With<ReadyButton>>,
+) {
+    let clickable = query.single();
+
+    if !clickable.just_clicked {
+        return;
+    }
+
+    next_screen.set(GameScreen::Preperation);
+}
+
+fn clean_summoning_screen(mut commands: Commands, query: Query<Entity, With<SummoningScreenItem>>) {
+    for entity in query.iter() {
+        commands.entity(entity).despawn_recursive();
+    }
+}
+
+fn reposition_minions(mut query: Query<&mut Transform, With<Minion>>) {
+    for (index, mut transform) in query.iter_mut().enumerate() {
+        transform.translation = Vec3::new(
+            1920. / (MAX_MINION_COUNT as f32 + 2.) * (index as f32 + 1.) - 1920. / 2.,
+            MINIONS_Y,
+            0.,
+        );
+    }
 }
