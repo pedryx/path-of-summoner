@@ -36,9 +36,13 @@ impl Plugin for SummoningPlugin {
                     spawn_items,
                     spawn_inventories_and_circle,
                     reposition_minions,
+                    make_minions_clickable,
                 ),
             )
-            .add_systems(OnExit(GameScreen::Summoning), clean_summoning_screen)
+            .add_systems(
+                OnExit(GameScreen::Summoning),
+                (clean_summoning_screen, unmake_minions_clickable),
+            )
             .add_systems(
                 Update,
                 (
@@ -48,6 +52,7 @@ impl Plugin for SummoningPlugin {
                     handle_drag_end,
                     summon_minion,
                     move_to_preparation_screen,
+                    handle_remove_minion,
                 )
                     .run_if(in_state(GameState::Playing).and_then(in_state(GameScreen::Summoning))),
             )
@@ -619,4 +624,26 @@ fn spawn_items(
     }
 
     recreate_items.should_recreate_inventory_items = true;
+}
+
+fn make_minions_clickable(mut commands: Commands, query: Query<Entity, With<Minion>>) {
+    for entity in query.iter() {
+        commands.entity(entity).insert(Clickable::default());
+    }
+}
+
+fn unmake_minions_clickable(mut commands: Commands, query: Query<Entity, With<Minion>>) {
+    for entity in query.iter() {
+        commands.entity(entity).remove::<Clickable>();
+    }
+}
+
+fn handle_remove_minion(mut commands: Commands, query: Query<(Entity, &Clickable), With<Minion>>) {
+    for (entity, clickable) in query.iter() {
+        if !clickable.just_clicked {
+            continue;
+        }
+
+        commands.entity(entity).despawn_recursive();
+    }
 }
