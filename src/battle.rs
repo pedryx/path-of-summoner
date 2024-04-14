@@ -1,6 +1,7 @@
 use crate::{
     enemy::{DropRewards, Enemy},
     health_bar::HealthBar,
+    loading::TextureAssets,
     minions::Minion,
     stats::Stats,
     summoning::{InventoryItems, MAX_ITEM_COUNT},
@@ -13,15 +14,19 @@ pub struct BattlePlugin;
 
 impl Plugin for BattlePlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(OnEnter(GameScreen::Battle), prepare_battle)
-            .add_systems(
-                Update,
-                (update_battle, handle_enemy_dead, handle_minion_dead)
-                    .chain()
-                    .run_if(in_state(GameState::Playing).and_then(in_state(GameScreen::Battle))),
-            )
-            .insert_resource(BattleRng(StdRng::from_entropy()))
-            .insert_resource(MinionCount(0));
+        app.add_systems(
+            OnEnter(GameScreen::Battle),
+            (prepare_battle, spawn_background),
+        )
+        .add_systems(OnExit(GameScreen::Battle), despawn_background)
+        .add_systems(
+            Update,
+            (update_battle, handle_enemy_dead, handle_minion_dead)
+                .chain()
+                .run_if(in_state(GameState::Playing).and_then(in_state(GameScreen::Battle))),
+        )
+        .insert_resource(BattleRng(StdRng::from_entropy()))
+        .insert_resource(MinionCount(0));
     }
 }
 
@@ -29,6 +34,9 @@ impl Plugin for BattlePlugin {
 pub struct BattleParticipant {
     pub turn_accumulator: f32,
 }
+
+#[derive(Component)]
+pub struct BattleScreenEntity;
 
 #[derive(Resource)]
 pub struct BattleRng(StdRng);
@@ -156,5 +164,36 @@ fn handle_minion_dead(
             next_screen.set(GameScreen::Other);
             next_state.set(GameState::GameOver);
         }
+    }
+}
+
+fn spawn_background(mut commands: Commands, textures: Res<TextureAssets>) {
+    // background
+    commands.spawn((
+        SpriteBundle {
+            texture: textures.battleground_background.clone(),
+            transform: Transform::from_xyz(0., 0., -2.),
+            ..Default::default()
+        },
+        BattleScreenEntity,
+    ));
+    commands.spawn((
+        SpriteBundle {
+            texture: textures.square.clone(),
+            sprite: Sprite {
+                custom_size: Some(Vec2::new(1920., 1080.)),
+                color: Color::BLACK.with_a(0.7),
+                ..Default::default()
+            },
+            transform: Transform::from_xyz(0., 0., -1.),
+            ..Default::default()
+        },
+        BattleScreenEntity,
+    ));
+}
+
+fn despawn_background(mut commands: Commands, query: Query<Entity, With<BattleScreenEntity>>) {
+    for entity in query.iter() {
+        commands.entity(entity).despawn_recursive();
     }
 }

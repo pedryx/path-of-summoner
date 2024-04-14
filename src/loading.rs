@@ -46,6 +46,16 @@ pub struct TextureAssets {
     #[asset(path = "textures/github.png")]
     pub github: Handle<Image>,
 
+    #[asset(path = "textures/summoner_background.png")]
+    pub summoner_background: Handle<Image>,
+    #[asset(path = "textures/game_over_enemy.png")]
+    pub game_over_enemy: Handle<Image>,
+
+    #[asset(path = "textures/dungeon_floor_background.png")]
+    pub dungeon_floor_background: Handle<Image>,
+    #[asset(path = "textures/battleground_background.png")]
+    pub battleground_background: Handle<Image>,
+
     #[asset(path = "textures/summoning_circle.png")]
     pub summoning_circle: Handle<Image>,
     #[asset(path = "textures/minion.png")]

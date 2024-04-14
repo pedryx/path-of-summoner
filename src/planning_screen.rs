@@ -29,7 +29,7 @@ impl Plugin for PlanningScreenPlugin {
         app.insert_resource(PlanningRng(StdRng::from_entropy()))
             .add_systems(
                 OnEnter(GameScreen::Planning),
-                (spawn_title, spawn_enemy_cards),
+                (spawn_title_and_background, spawn_enemy_cards),
             )
             .add_systems(OnExit(GameScreen::Planning), clean_planning_screen)
             .add_systems(
@@ -102,7 +102,7 @@ fn spawn_reward_card(
         .spawn((SpriteBundle {
             texture: textures.square.clone(),
             sprite: Sprite {
-                color: Color::GRAY,
+                color: Color::BLACK.with_a(0.95),
                 custom_size: Some(REWARD_CARD_SIZE),
                 ..Default::default()
             },
@@ -166,7 +166,34 @@ fn spawn_reward_card(
         });
 }
 
-fn spawn_title(mut commands: Commands, fonts: Res<FontAssets>) {
+fn spawn_title_and_background(
+    mut commands: Commands,
+    textures: Res<TextureAssets>,
+    fonts: Res<FontAssets>,
+) {
+    // background
+    commands.spawn((
+        SpriteBundle {
+            texture: textures.battleground_background.clone(),
+            transform: Transform::from_xyz(0., 0., -2.),
+            ..Default::default()
+        },
+        PlanningScreenEntity,
+    ));
+    commands.spawn((
+        SpriteBundle {
+            texture: textures.square.clone(),
+            sprite: Sprite {
+                custom_size: Some(Vec2::new(1920., 1080.)),
+                color: Color::BLACK.with_a(0.7),
+                ..Default::default()
+            },
+            transform: Transform::from_xyz(0., 0., -1.),
+            ..Default::default()
+        },
+        PlanningScreenEntity,
+    ));
+
     commands.spawn((
         Text2dBundle {
             text: Text {
@@ -250,7 +277,7 @@ fn spawn_enemy_cards(
                 SpriteBundle {
                     texture: textures.square.clone(),
                     sprite: Sprite {
-                        color: Color::DARK_GRAY,
+                        color: Color::DARK_GRAY.with_a(0.7),
                         custom_size: Some(CARD_SIZE),
                         ..Default::default()
                     },

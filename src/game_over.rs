@@ -19,6 +19,9 @@ const MENU_BUTTON_SIZE: Vec2 = Vec2::new(256., 96.);
 const MENU_BUTTON_Y: f32 = -300.;
 const MENU_BUTTON_TEXT_SIZE: f32 = 64.;
 
+const UI_X: f32 = -1920. / 4.;
+const MONSTER_X: f32 = 1920. / 4.;
+
 pub struct GameOverPlugin;
 
 impl Plugin for GameOverPlugin {
@@ -45,6 +48,39 @@ fn spawn_entities(
     statistics: Res<Statistics>,
     battle_count: Res<BattleCount>,
 ) {
+    // background
+    commands.spawn((
+        SpriteBundle {
+            texture: textures.battleground_background.clone(),
+            transform: Transform::from_xyz(0., 0., -3.),
+            ..Default::default()
+        },
+        GameOverEntity,
+    ));
+    commands.spawn((
+        SpriteBundle {
+            texture: textures.square.clone(),
+            sprite: Sprite {
+                custom_size: Some(Vec2::new(1920., 1080.)),
+                color: Color::BLACK.with_a(0.7),
+                ..Default::default()
+            },
+            transform: Transform::from_xyz(0., 0., -2.),
+            ..Default::default()
+        },
+        GameOverEntity,
+    ));
+
+    // monster
+    commands.spawn((
+        SpriteBundle {
+            texture: textures.game_over_enemy.clone(),
+            transform: Transform::from_xyz(MONSTER_X, 0., -1.),
+            ..Default::default()
+        },
+        GameOverEntity,
+    ));
+
     // title
     commands.spawn((
         Text2dBundle {
@@ -79,7 +115,7 @@ fn spawn_entities(
                 )],
                 ..Default::default()
             },
-            transform: Transform::from_xyz(0., BATTLE_COUNT_Y, 0.),
+            transform: Transform::from_xyz(UI_X, BATTLE_COUNT_Y, 0.),
             ..Default::default()
         },
         GameOverEntity,
@@ -103,7 +139,7 @@ fn spawn_entities(
                 )],
                 ..Default::default()
             },
-            transform: Transform::from_xyz(0., TIME_Y, 0.),
+            transform: Transform::from_xyz(UI_X, TIME_Y, 0.),
             ..Default::default()
         },
         GameOverEntity,
@@ -123,7 +159,7 @@ fn spawn_entities(
                 )],
                 ..Default::default()
             },
-            transform: Transform::from_xyz(0., MINIONS_Y, 0.),
+            transform: Transform::from_xyz(UI_X, MINIONS_Y, 0.),
             ..Default::default()
         },
         GameOverEntity,

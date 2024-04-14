@@ -22,11 +22,12 @@ fn reposition_enemy(
 ) {
     let (camera, camera_transform) = camera.single();
     let spawn_pos = camera
-        .ndc_to_world(camera_transform, Vec3::new(0.5, 0., 0.))
+        .ndc_to_world(camera_transform, Vec3::new(0.5, 0.1, 0.))
         .unwrap();
 
     let (mut transform, mut visibility) = query.single_mut();
 
     transform.translation = spawn_pos;
+    transform.translation.z = 0.;
     *visibility = Visibility::Visible;
 }

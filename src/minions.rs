@@ -2,7 +2,7 @@ use crate::GameScreen;
 use bevy::prelude::*;
 
 pub const MAX_MINION_COUNT: usize = 4;
-const NDC_SPAWN_AREA_SIZE: f32 = 2.0;
+const NDC_SPAWN_AREA_SIZE: f32 = 2.5;
 const NDC_SPAWN_X: f32 = -0.2;
 
 pub const MINION_SIZE: f32 = 128.;
@@ -26,7 +26,7 @@ fn reposition_minions(
 
     for (i, mut transform) in query.iter_mut().enumerate() {
         let ndc_spawn_pos_y =
-            (NDC_SPAWN_AREA_SIZE / (MAX_MINION_COUNT + 2) as f32) * (i + 1) as f32 - 1.;
+            (NDC_SPAWN_AREA_SIZE / (MAX_MINION_COUNT + 2) as f32) * (i + 1) as f32 - 1. - 0.1;
         let spawn_pos = camera
             .ndc_to_world(
                 camera_transform,
@@ -35,5 +35,6 @@ fn reposition_minions(
             .unwrap();
 
         transform.translation = spawn_pos;
+        transform.translation.z = 0.;
     }
 }

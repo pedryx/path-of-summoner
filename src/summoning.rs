@@ -137,7 +137,7 @@ fn spawn_item_card(
             SpriteBundle {
                 texture: textures.square.clone(),
                 sprite: Sprite {
-                    color: Color::GRAY,
+                    color: Color::BLACK.with_a(0.95),
                     custom_size: Some(ITEM_CARD_SIZE),
                     ..Default::default()
                 },
@@ -312,12 +312,35 @@ fn spawn_inventories_and_circle(
     textures: Res<TextureAssets>,
     fonts: Res<FontAssets>,
 ) {
+    // background
+    commands.spawn((
+        SpriteBundle {
+            texture: textures.dungeon_floor_background.clone(),
+            transform: Transform::from_xyz(0., 0., -2.),
+            ..Default::default()
+        },
+        SummoningScreenEntity,
+    ));
+    commands.spawn((
+        SpriteBundle {
+            texture: textures.square.clone(),
+            sprite: Sprite {
+                custom_size: Some(Vec2::new(1920., 1080.)),
+                color: Color::BLACK.with_a(0.7),
+                ..Default::default()
+            },
+            transform: Transform::from_xyz(0., 0., -1.),
+            ..Default::default()
+        },
+        SummoningScreenEntity,
+    ));
+
     // item inventory
     commands.spawn((
         SpriteBundle {
             texture: textures.square.clone(),
             sprite: Sprite {
-                color: Color::DARK_GRAY,
+                color: Color::DARK_GRAY.with_a(0.7),
                 custom_size: Some(INVENTORY_SIZE),
                 anchor: bevy::sprite::Anchor::TopCenter,
                 ..Default::default()
@@ -334,7 +357,7 @@ fn spawn_inventories_and_circle(
         SpriteBundle {
             texture: textures.square.clone(),
             sprite: Sprite {
-                color: Color::DARK_GRAY,
+                color: Color::DARK_GRAY.with_a(0.7),
                 custom_size: Some(INVENTORY_SIZE),
                 anchor: bevy::sprite::Anchor::TopCenter,
                 ..Default::default()

@@ -1,6 +1,9 @@
-use crate::loading::TextureAssets;
+use crate::loading::{FontAssets, TextureAssets};
 use crate::{GameScreen, GameState};
 use bevy::prelude::*;
+
+const TITLE_SIZE: f32 = 128.;
+const TITLE_Y: f32 = 400.;
 
 pub struct MenuPlugin;
 
@@ -23,8 +26,8 @@ struct ButtonColors {
 impl Default for ButtonColors {
     fn default() -> Self {
         ButtonColors {
-            normal: Color::rgb(0.15, 0.15, 0.15),
-            hovered: Color::rgb(0.25, 0.25, 0.25),
+            normal: Color::rgb(0.2, 0.2, 0.2),
+            hovered: Color::rgb(0.3, 0.3, 0.3),
         }
     }
 }
@@ -32,8 +35,51 @@ impl Default for ButtonColors {
 #[derive(Component)]
 struct Menu;
 
-fn setup_menu(mut commands: Commands, textures: Res<TextureAssets>) {
+fn setup_menu(mut commands: Commands, textures: Res<TextureAssets>, fonts: Res<FontAssets>) {
     info!("menu");
+
+    // title
+    commands.spawn((
+        Text2dBundle {
+            text: Text {
+                sections: vec![TextSection::new(
+                    "PATH OF SUMMONER",
+                    TextStyle {
+                        font: fonts.texts.clone(),
+                        color: Color::WHITE,
+                        font_size: TITLE_SIZE,
+                    },
+                )],
+                ..Default::default()
+            },
+            transform: Transform::from_xyz(0., TITLE_Y, 0.),
+            ..Default::default()
+        },
+        Menu,
+    ));
+
+    commands.spawn((
+        SpriteBundle {
+            texture: textures.summoner_background.clone(),
+            transform: Transform::from_xyz(0., 0., -2.),
+            ..Default::default()
+        },
+        Menu,
+    ));
+    commands.spawn((
+        SpriteBundle {
+            texture: textures.square.clone(),
+            sprite: Sprite {
+                custom_size: Some(Vec2::new(1920., 1080.)),
+                color: Color::BLACK.with_a(0.7),
+                ..Default::default()
+            },
+            transform: Transform::from_xyz(0., 0., -1.),
+            ..Default::default()
+        },
+        Menu,
+    ));
+
     commands
         .spawn((
             NodeBundle {
@@ -55,8 +101,8 @@ fn setup_menu(mut commands: Commands, textures: Res<TextureAssets>) {
                 .spawn((
                     ButtonBundle {
                         style: Style {
-                            width: Val::Px(140.0),
-                            height: Val::Px(50.0),
+                            width: Val::Px(192.0),
+                            height: Val::Px(96.0),
                             justify_content: JustifyContent::Center,
                             align_items: AlignItems::Center,
                             ..Default::default()
@@ -71,9 +117,9 @@ fn setup_menu(mut commands: Commands, textures: Res<TextureAssets>) {
                     parent.spawn(TextBundle::from_section(
                         "Play",
                         TextStyle {
-                            font_size: 40.0,
+                            font_size: 64.0,
                             color: Color::rgb(0.9, 0.9, 0.9),
-                            ..default()
+                            font: fonts.texts.clone(),
                         },
                     ));
                 });
@@ -99,11 +145,11 @@ fn setup_menu(mut commands: Commands, textures: Res<TextureAssets>) {
                 .spawn((
                     ButtonBundle {
                         style: Style {
-                            width: Val::Px(170.0),
-                            height: Val::Px(50.0),
+                            width: Val::Px(300.0),
+                            height: Val::Px(100.0),
                             justify_content: JustifyContent::SpaceAround,
                             align_items: AlignItems::Center,
-                            padding: UiRect::all(Val::Px(5.)),
+                            padding: UiRect::all(Val::Px(0.)),
                             ..Default::default()
                         },
                         background_color: Color::NONE.into(),
@@ -119,15 +165,15 @@ fn setup_menu(mut commands: Commands, textures: Res<TextureAssets>) {
                     parent.spawn(TextBundle::from_section(
                         "Made with Bevy",
                         TextStyle {
-                            font_size: 15.0,
+                            font_size: 32.0,
                             color: Color::rgb(0.9, 0.9, 0.9),
-                            ..default()
+                            font: fonts.texts.clone(),
                         },
                     ));
                     parent.spawn(ImageBundle {
                         image: textures.bevy.clone().into(),
                         style: Style {
-                            width: Val::Px(32.),
+                            width: Val::Px(64.),
                             ..default()
                         },
                         ..default()
@@ -137,11 +183,11 @@ fn setup_menu(mut commands: Commands, textures: Res<TextureAssets>) {
                 .spawn((
                     ButtonBundle {
                         style: Style {
-                            width: Val::Px(170.0),
-                            height: Val::Px(50.0),
+                            width: Val::Px(250.0),
+                            height: Val::Px(100.0),
                             justify_content: JustifyContent::SpaceAround,
                             align_items: AlignItems::Center,
-                            padding: UiRect::all(Val::Px(5.)),
+                            padding: UiRect::all(Val::Px(0.)),
                             ..default()
                         },
                         background_color: Color::NONE.into(),
@@ -151,21 +197,21 @@ fn setup_menu(mut commands: Commands, textures: Res<TextureAssets>) {
                         normal: Color::NONE,
                         hovered: Color::rgb(0.25, 0.25, 0.25),
                     },
-                    OpenLink("https://github.com/NiklasEi/bevy_game_template"),
+                    OpenLink("https://github.com/pedryx/path-of-summoner"),
                 ))
                 .with_children(|parent| {
                     parent.spawn(TextBundle::from_section(
                         "Open source",
                         TextStyle {
-                            font_size: 15.0,
+                            font_size: 32.0,
                             color: Color::rgb(0.9, 0.9, 0.9),
-                            ..default()
+                            font: fonts.texts.clone(),
                         },
                     ));
                     parent.spawn(ImageBundle {
                         image: textures.github.clone().into(),
                         style: Style {
-                            width: Val::Px(32.),
+                            width: Val::Px(64.),
                             ..default()
                         },
                         ..default()
