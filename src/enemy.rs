@@ -1,7 +1,3 @@
-use crate::battle::BattleParticipant;
-use crate::health_bar::HealthBar;
-use crate::loading::TextureAssets;
-use crate::stats::Stats;
 use crate::summoning::SummoningItem;
 use crate::GameScreen;
 use bevy::prelude::*;
@@ -10,7 +6,7 @@ pub struct EnemyPlugin;
 
 impl Plugin for EnemyPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(OnEnter(GameScreen::Battle), spawn_enemy);
+        app.add_systems(OnEnter(GameScreen::Battle), reposition_enemy);
     }
 }
 
@@ -20,30 +16,16 @@ pub struct Enemy;
 #[derive(Component, Clone)]
 pub struct DropRewards(pub Vec<SummoningItem>);
 
-fn spawn_enemy(
-    mut commands: Commands,
-    textures: Res<TextureAssets>,
+fn reposition_enemy(
     camera: Query<(&Camera, &GlobalTransform), With<Camera2d>>,
+    mut query: Query<&mut Transform, With<Enemy>>,
 ) {
     let (camera, camera_transform) = camera.single();
     let spawn_pos = camera
         .ndc_to_world(camera_transform, Vec3::new(0.5, 0., 0.))
         .unwrap();
 
-    commands.spawn((
-        SpriteBundle {
-            texture: textures.enemy1.clone(),
-            transform: Transform::from_translation(spawn_pos),
-            ..default()
-        },
-        Stats {
-            damage: 5.,
-            speed: 1.,
-            hp_regeneration: 1.,
-            ..default()
-        },
-        HealthBar { ..default() },
-        Enemy,
-        BattleParticipant::default(),
-    ));
+    let mut transform = query.single_mut();
+
+    transform.translation = spawn_pos;
 }
