@@ -154,7 +154,7 @@ fn handle_minion_dead(
                 commands.entity(enemy_query.single()).despawn_recursive();
             }
             next_screen.set(GameScreen::Other);
-            next_state.set(GameState::Menu);
+            next_state.set(GameState::GameOver);
         }
     }
 }

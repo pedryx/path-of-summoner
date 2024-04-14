@@ -332,6 +332,7 @@ fn handle_enemy_selection(
         commands.spawn((
             SpriteBundle {
                 texture: textures.enemy1.clone(),
+                visibility: Visibility::Hidden,
                 ..default()
             },
             stats.clone(),

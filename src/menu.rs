@@ -1,5 +1,5 @@
 use crate::loading::TextureAssets;
-use crate::{BattleCount, GameScreen, GameState};
+use crate::{GameScreen, GameState};
 use bevy::prelude::*;
 
 pub struct MenuPlugin;
@@ -32,15 +32,8 @@ impl Default for ButtonColors {
 #[derive(Component)]
 struct Menu;
 
-fn setup_menu(
-    mut commands: Commands,
-    textures: Res<TextureAssets>,
-    mut battle_count: ResMut<BattleCount>,
-) {
+fn setup_menu(mut commands: Commands, textures: Res<TextureAssets>) {
     info!("menu");
-
-    battle_count.0 = 0;
-
     commands
         .spawn((
             NodeBundle {

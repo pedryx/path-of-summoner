@@ -18,14 +18,15 @@ pub struct DropRewards(pub Vec<SummoningItem>);
 
 fn reposition_enemy(
     camera: Query<(&Camera, &GlobalTransform), With<Camera2d>>,
-    mut query: Query<&mut Transform, With<Enemy>>,
+    mut query: Query<(&mut Transform, &mut Visibility), With<Enemy>>,
 ) {
     let (camera, camera_transform) = camera.single();
     let spawn_pos = camera
         .ndc_to_world(camera_transform, Vec3::new(0.5, 0., 0.))
         .unwrap();
 
-    let mut transform = query.single_mut();
+    let (mut transform, mut visibility) = query.single_mut();
 
     transform.translation = spawn_pos;
+    *visibility = Visibility::Visible;
 }

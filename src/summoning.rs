@@ -17,7 +17,7 @@ const SUMMONING_CIRCLE_POS: Vec3 = Vec3::new(0., 220., 0.);
 const MAX_ITEM_COUNT: usize = 10;
 const ITEM_CARD_SIZE: Vec2 = Vec2::new(INVENTORY_SIZE.x, INVENTORY_SIZE.y / MAX_ITEM_COUNT as f32);
 
-const MINIONS_Y: f32 = -440.;
+const MINIONS_Y: f32 = -460.;
 
 pub struct SummoningPlugin;
 
@@ -565,11 +565,9 @@ fn move_to_preparation_screen(
     next_screen.set(GameScreen::Planning);
 
     for ingredient_item in ingredient_items.0.iter() {
-        if let Some(item) = inventory_items
-            .0
-            .iter_mut()
-            .find(|item| item.item_type == ingredient_item.item_type && item.tier == ingredient_item.tier)
-        {
+        if let Some(item) = inventory_items.0.iter_mut().find(|item| {
+            item.item_type == ingredient_item.item_type && item.tier == ingredient_item.tier
+        }) {
             item.quantity += ingredient_item.quantity;
         } else {
             inventory_items.0.push(ingredient_item.clone());
@@ -602,7 +600,7 @@ fn spawn_items(
     mut recreate_items: ResMut<ShouldRecreateItemCards>,
     battle_count: Res<BattleCount>,
 ) {
-    if battle_count.0 == 0 {
+    if battle_count.0 == 1 {
         inventory_items.0.push(SummoningItem {
             item_type: SummoningItemType::Damage,
             tier: 1,

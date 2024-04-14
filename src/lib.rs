@@ -3,16 +3,17 @@
 mod audio;
 mod battle;
 mod enemy;
+mod game_over;
 mod health_bar;
 mod loading;
 mod menu;
 mod minions;
 mod mouse_control;
 mod planning_screen;
+mod statistics;
 mod stats;
 mod summoning;
 mod utils;
-mod statistics;
 
 use crate::audio::InternalAudioPlugin;
 use crate::loading::LoadingPlugin;
@@ -20,13 +21,14 @@ use crate::menu::MenuPlugin;
 
 use crate::battle::BattlePlugin;
 use crate::enemy::EnemyPlugin;
+use crate::game_over::GameOverPlugin;
 use crate::health_bar::HealthBarPlugin;
 use crate::minions::MinionsPlugin;
 use crate::mouse_control::MouseControlPlugin;
 use crate::planning_screen::PlanningScreenPlugin;
+use crate::statistics::StatisticsPlugin;
 use crate::stats::StatsPlugin;
 use crate::summoning::SummoningPlugin;
-use crate::statistics::StatisticsPlugin;
 
 #[cfg(debug_assertions)]
 use bevy::diagnostic::{FrameTimeDiagnosticsPlugin, LogDiagnosticsPlugin};
@@ -45,6 +47,7 @@ enum GameState {
     Playing,
     // Here the menu is drawn and waiting for player interaction
     Menu,
+    GameOver,
 }
 
 #[derive(States, Default, Clone, Eq, PartialEq, Debug, Hash)]
@@ -81,6 +84,7 @@ impl Plugin for GamePlugin {
                 MouseControlPlugin,
                 PlanningScreenPlugin,
                 StatisticsPlugin,
+                GameOverPlugin,
             ));
 
         #[cfg(debug_assertions)]
