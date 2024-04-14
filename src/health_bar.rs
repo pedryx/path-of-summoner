@@ -1,4 +1,4 @@
-use crate::{stats::Stats, GameScreen, GameState};
+use crate::{battle::update_battle, stats::Stats, GameState};
 use bevy::{
     prelude::*,
     sprite::{MaterialMesh2dBundle, Mesh2dHandle},
@@ -13,8 +13,8 @@ impl Plugin for HealthBarPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(
             Update,
-            (spawn_health_bars, update_health_bars)
-                .run_if(in_state(GameState::Playing).and_then(in_state(GameScreen::Battle))),
+            (spawn_health_bars, update_health_bars.after(update_battle))
+                .run_if(in_state(GameState::Playing)),
         );
     }
 }

@@ -64,7 +64,8 @@ impl Plugin for GamePlugin {
         app.init_state::<GameState>()
             .init_state::<GameScreen>()
             .insert_resource(BattleCount(1))
-            .add_systems(Update, close_on_esc) // ToDo
+            .add_systems(OnExit(GameState::Loading), spawn_camera)
+            .add_systems(Update, close_on_esc)
             .add_plugins((
                 LoadingPlugin,
                 MenuPlugin,
@@ -84,4 +85,8 @@ impl Plugin for GamePlugin {
             app.add_plugins((FrameTimeDiagnosticsPlugin, LogDiagnosticsPlugin::default()));
         }
     }
+}
+
+fn spawn_camera(mut commands: Commands) {
+    commands.spawn(Camera2dBundle::default());
 }

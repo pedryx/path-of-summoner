@@ -1,5 +1,5 @@
 use crate::loading::TextureAssets;
-use crate::{GameScreen, GameState};
+use crate::{BattleCount, GameScreen, GameState};
 use bevy::prelude::*;
 
 pub struct MenuPlugin;
@@ -32,9 +32,15 @@ impl Default for ButtonColors {
 #[derive(Component)]
 struct Menu;
 
-fn setup_menu(mut commands: Commands, textures: Res<TextureAssets>) {
+fn setup_menu(
+    mut commands: Commands,
+    textures: Res<TextureAssets>,
+    mut battle_count: ResMut<BattleCount>,
+) {
     info!("menu");
-    commands.spawn(Camera2dBundle::default());
+
+    battle_count.0 = 0;
+
     commands
         .spawn((
             NodeBundle {

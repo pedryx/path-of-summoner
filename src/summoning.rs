@@ -1,10 +1,11 @@
 use crate::{
+    health_bar::HealthBar,
     loading::{FontAssets, TextureAssets},
     minions::{Minion, MAX_MINION_COUNT, MINION_SIZE},
     mouse_control::{Clickable, MouseInfo},
     stats::Stats,
     utils::num_to_roman,
-    GameScreen, GameState,
+    BattleCount, GameScreen, GameState,
 };
 use bevy::{prelude::*, transform::TransformSystem};
 
@@ -22,57 +23,40 @@ pub struct SummoningPlugin;
 
 impl Plugin for SummoningPlugin {
     fn build(&self, app: &mut App) {
-        app.insert_resource(InventoryItems(vec![
-            SummoningItem {
-                item_type: SummoningItemType::Damage,
-                tier: 1,
-                quantity: 4,
-            },
-            SummoningItem {
-                item_type: SummoningItemType::Speed,
-                tier: 4,
-                quantity: 1,
-            },
-            SummoningItem {
-                item_type: SummoningItemType::HPRegeneration,
-                tier: 8,
-                quantity: 6,
-            },
-            SummoningItem {
-                item_type: SummoningItemType::MaxHP,
-                tier: 10,
-                quantity: 9,
-            },
-        ]))
-        .init_resource::<IngredientItems>()
-        .insert_resource(ShouldRecreateItemCards {
-            should_recreate_ingredient_items: true,
-            should_recreate_inventory_items: true,
-        })
-        .init_resource::<DragActive>()
-        .add_systems(
-            OnEnter(GameScreen::Summoning),
-            (spawn_inventories_and_circle, reposition_minions),
-        )
-        .add_systems(OnExit(GameScreen::Summoning), clean_summoning_screen)
-        .add_systems(
-            Update,
-            (
-                spawn_inventory_cards,
-                spawn_ingredient_cards,
-                handle_drag_move,
-                handle_drag_end,
-                summon_minion,
-                move_to_preparation_screen,
+        app.init_resource::<InventoryItems>()
+            .init_resource::<IngredientItems>()
+            .insert_resource(ShouldRecreateItemCards {
+                should_recreate_ingredient_items: false,
+                should_recreate_inventory_items: false,
+            })
+            .init_resource::<DragActive>()
+            .add_systems(
+                OnEnter(GameScreen::Summoning),
+                (
+                    spawn_items,
+                    spawn_inventories_and_circle,
+                    reposition_minions,
+                ),
             )
-                .run_if(in_state(GameState::Playing).and_then(in_state(GameScreen::Summoning))),
-        )
-        .add_systems(
-            PostUpdate,
-            handle_drag_start
-                .run_if(in_state(GameState::Playing).and_then(in_state(GameScreen::Summoning)))
-                .after(TransformSystem::TransformPropagate),
-        );
+            .add_systems(OnExit(GameScreen::Summoning), clean_summoning_screen)
+            .add_systems(
+                Update,
+                (
+                    spawn_inventory_cards,
+                    spawn_ingredient_cards,
+                    handle_drag_move,
+                    handle_drag_end,
+                    summon_minion,
+                    move_to_preparation_screen,
+                )
+                    .run_if(in_state(GameState::Playing).and_then(in_state(GameScreen::Summoning))),
+            )
+            .add_systems(
+                PostUpdate,
+                handle_drag_start
+                    .run_if(in_state(GameState::Playing).and_then(in_state(GameScreen::Summoning)))
+                    .after(TransformSystem::TransformPropagate),
+            );
     }
 }
 
@@ -113,7 +97,7 @@ struct SummoningCircle;
 struct ReadyButton;
 
 #[derive(Resource, Default)]
-struct InventoryItems(Vec<SummoningItem>);
+pub struct InventoryItems(pub Vec<SummoningItem>);
 
 #[derive(Resource, Default)]
 struct IngredientItems(Vec<SummoningItem>);
@@ -534,7 +518,7 @@ fn summon_minion(
             SummoningItemType::MaxHP => {
                 stats.max_hp += 10. * item.tier as f32;
                 stats.current_hp += 10. * item.tier as f32;
-            },
+            }
             SummoningItemType::HPRegeneration => stats.hp_regeneration += 0.5 * item.tier as f32,
             SummoningItemType::Speed => stats.speed += 1. * item.tier as f32,
             SummoningItemType::Damage => stats.damage += 2. * item.tier as f32,
@@ -558,6 +542,7 @@ fn summon_minion(
         },
         Minion,
         stats,
+        HealthBar::default(),
     ));
 
     ingredient_items.0.clear();
@@ -595,4 +580,30 @@ fn reposition_minions(mut query: Query<&mut Transform, With<Minion>>) {
             0.,
         );
     }
+}
+
+fn spawn_items(
+    mut inventory_items: ResMut<InventoryItems>,
+    mut recreate_items: ResMut<ShouldRecreateItemCards>,
+    battle_count: Res<BattleCount>,
+) {
+    if battle_count.0 == 0 {
+        inventory_items.0.push(SummoningItem {
+            item_type: SummoningItemType::Damage,
+            tier: 1,
+            quantity: 1,
+        });
+        inventory_items.0.push(SummoningItem {
+            item_type: SummoningItemType::Speed,
+            tier: 1,
+            quantity: 1,
+        });
+        inventory_items.0.push(SummoningItem {
+            item_type: SummoningItemType::MaxHP,
+            tier: 1,
+            quantity: 1,
+        });
+    }
+
+    recreate_items.should_recreate_inventory_items = true;
 }
