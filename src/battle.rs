@@ -119,10 +119,8 @@ fn handle_enemy_dead(
             .find(|item| item.item_type == reward_item.item_type && item.tier == reward_item.tier)
         {
             item.quantity += reward_item.quantity;
-        } else {
-            if inventory_items.0.len() < MAX_ITEM_COUNT {
-                inventory_items.0.push(reward_item.clone());
-            }
+        } else if inventory_items.0.len() < MAX_ITEM_COUNT {
+            inventory_items.0.push(reward_item.clone());
         }
     }
 

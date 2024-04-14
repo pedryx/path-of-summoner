@@ -1,5 +1,12 @@
 use crate::{
-    health_bar::HealthBar, loading::{FontAssets, TextureAssets}, minions::{Minion, MAX_MINION_COUNT, MINION_SIZE}, mouse_control::{Clickable, MouseInfo}, statistics::Statistics, stats::Stats, utils::num_to_roman, BattleCount, GameScreen, GameState
+    health_bar::HealthBar,
+    loading::{FontAssets, TextureAssets},
+    minions::{Minion, MAX_MINION_COUNT, MINION_SIZE},
+    mouse_control::{Clickable, MouseInfo},
+    statistics::Statistics,
+    stats::Stats,
+    utils::num_to_roman,
+    BattleCount, GameScreen, GameState,
 };
 use bevy::{prelude::*, transform::TransformSystem};
 
@@ -47,6 +54,7 @@ impl Plugin for SummoningPlugin {
                     summon_minion,
                     move_to_preparation_screen,
                     handle_remove_minion,
+                    handle_remove_item_card,
                 )
                     .run_if(in_state(GameState::Playing).and_then(in_state(GameScreen::Summoning))),
             )
@@ -107,6 +115,9 @@ struct DragActive(bool);
 #[derive(Component)]
 struct SummoningScreenEntity;
 
+#[derive(Component)]
+struct InInventoryItem;
+
 #[derive(Resource, Default)]
 struct ShouldRecreateItemCards {
     should_recreate_inventory_items: bool,
@@ -139,11 +150,14 @@ fn spawn_item_card(
                 ..Default::default()
             },
             ItemCard(index),
+            Clickable::default(),
         ))
         .id();
 
     if !is_ingredient {
-        commands.entity(card_entity).insert(Draggable);
+        commands
+            .entity(card_entity)
+            .insert((Draggable, InInventoryItem));
 
         let quantity_entity = commands
             .spawn(Text2dBundle {
@@ -642,5 +656,22 @@ fn handle_remove_minion(mut commands: Commands, query: Query<(Entity, &Clickable
         }
 
         commands.entity(entity).despawn_recursive();
+    }
+}
+
+fn handle_remove_item_card(
+    mut commands: Commands,
+    mut inventory_items: ResMut<InventoryItems>,
+    mut recreate_items: ResMut<ShouldRecreateItemCards>,
+    query: Query<(Entity, &Clickable, &ItemCard), With<InInventoryItem>>,
+) {
+    for (entity, clickable, &ItemCard(index)) in query.iter() {
+        if !clickable.just_right_clicked {
+            continue;
+        }
+
+        inventory_items.0.remove(index);
+        commands.entity(entity).despawn_recursive();
+        recreate_items.should_recreate_inventory_items = true;
     }
 }
