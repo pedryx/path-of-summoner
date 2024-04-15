@@ -593,7 +593,10 @@ fn handle_move_item(
         }
 
         let item = &mut inventory_items.0[index];
-        let is_duplicate = ingredient_items.0.iter().any(|ingredient| ingredient.item_type == item.item_type);
+        let is_duplicate = ingredient_items
+            .0
+            .iter()
+            .any(|ingredient| ingredient.item_type == item.item_type);
         if !is_duplicate {
             ingredient_items.0.push(item.clone());
 

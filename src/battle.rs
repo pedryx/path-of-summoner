@@ -1,5 +1,8 @@
 use std::time::Duration;
 
+mod effects;
+
+use self::effects::EffectsPlugin;
 use crate::{
     audio::Soundtrack,
     enemy::{DropRewards, Enemy},
@@ -20,19 +23,22 @@ pub struct BattlePlugin;
 
 impl Plugin for BattlePlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(
-            OnEnter(GameScreen::Battle),
-            (prepare_battle, prepare_battle_screen),
-        )
-        .add_systems(OnExit(GameScreen::Battle), clean_up_battle_screen)
-        .add_systems(
-            Update,
-            (update_battle, handle_enemy_dead, handle_minion_dead)
-                .chain()
-                .run_if(in_state(GameState::Playing).and_then(in_state(GameScreen::Battle))),
-        )
-        .insert_resource(BattleRng(StdRng::from_entropy()))
-        .insert_resource(MinionCount(0));
+        app.add_plugins(EffectsPlugin)
+            .add_event::<MinionAttackEvent>()
+            .add_event::<EnemyAttackEvent>()
+            .add_systems(
+                OnEnter(GameScreen::Battle),
+                (prepare_battle, prepare_battle_screen),
+            )
+            .add_systems(OnExit(GameScreen::Battle), clean_up_battle_screen)
+            .add_systems(
+                Update,
+                (update_battle, handle_enemy_dead, handle_minion_dead)
+                    .chain()
+                    .run_if(in_state(GameState::Playing).and_then(in_state(GameScreen::Battle))),
+            )
+            .insert_resource(BattleRng(StdRng::from_entropy()))
+            .insert_resource(MinionCount(0));
     }
 }
 
@@ -49,6 +55,18 @@ pub struct BattleRng(StdRng);
 
 #[derive(Resource)]
 pub struct MinionCount(usize);
+
+#[derive(Event)]
+pub struct MinionAttackEvent {
+    attacker: Entity,
+    target: Entity,
+}
+
+#[derive(Event)]
+pub struct EnemyAttackEvent {
+    attacker: Entity,
+    target: Entity,
+}
 
 fn prepare_battle(
     mut commands: Commands,
@@ -76,21 +94,35 @@ pub fn update_battle(
     time: Res<Time>,
     mut battle_rng: ResMut<BattleRng>,
     minion_count: Res<MinionCount>,
-    mut minion_query: Query<(&mut BattleParticipant, &mut Stats), (With<Minion>, Without<Enemy>)>,
-    mut enemy_query: Query<(&mut BattleParticipant, &mut Stats), (With<Enemy>, Without<Minion>)>,
+    mut minion_attack_event: EventWriter<MinionAttackEvent>,
+    mut enemy_attack_event: EventWriter<EnemyAttackEvent>,
+    mut minion_query: Query<
+        (Entity, &mut BattleParticipant, &mut Stats),
+        (With<Minion>, Without<Enemy>),
+    >,
+    mut enemy_query: Query<
+        (Entity, &mut BattleParticipant, &mut Stats),
+        (With<Enemy>, Without<Minion>),
+    >,
 ) {
-    if let Ok((mut enemy_battle_participant, mut enemy_stats)) = enemy_query.get_single_mut() {
-        for (mut battle_participant, stats) in minion_query.iter_mut() {
+    if let Ok((enemy_entity, mut enemy_battle_participant, mut enemy_stats)) =
+        enemy_query.get_single_mut()
+    {
+        for (entity, mut battle_participant, stats) in minion_query.iter_mut() {
             battle_participant.turn_accumulator += time.delta_seconds();
 
             if battle_participant.turn_accumulator >= 1. / stats.speed {
                 battle_participant.turn_accumulator -= 1. / stats.speed;
 
-                enemy_stats.current_hp -= stats.damage;
                 println!(
                     "minion attacking for {}, enemy has {} hp",
                     stats.damage, enemy_stats.current_hp
                 );
+                enemy_stats.current_hp -= stats.damage;
+                minion_attack_event.send(MinionAttackEvent {
+                    attacker: entity,
+                    target: enemy_entity,
+                });
             }
         }
 
@@ -102,12 +134,16 @@ pub fn update_battle(
             let target = minion_query
                 .iter_mut()
                 .nth(battle_rng.0.gen_range(0..minion_count.0));
-            if let Some((_, mut stats)) = target {
-                stats.current_hp -= enemy_stats.damage;
+            if let Some((entity, _, mut stats)) = target {
                 println!(
                     "enemy attacking for {}, minion has {} hp",
                     enemy_stats.damage, stats.current_hp
                 );
+                stats.current_hp -= enemy_stats.damage;
+                enemy_attack_event.send(EnemyAttackEvent {
+                    attacker: enemy_entity,
+                    target: entity,
+                });
             }
         }
     }

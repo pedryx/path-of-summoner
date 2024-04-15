@@ -6,7 +6,8 @@ use bevy::prelude::*;
 use bevy::window::{PrimaryWindow, WindowResolution};
 use bevy::winit::WinitWindows;
 use bevy::DefaultPlugins;
-use bevy_game::GamePlugin; // ToDo: Replace bevy_game with your new crate name.
+use bevy_game::GamePlugin;
+use bevy_tweening::TweeningPlugin; // ToDo: Replace bevy_game with your new crate name.
 use std::io::Cursor;
 use winit::window::Icon;
 
@@ -27,6 +28,7 @@ fn main() {
             }),
             ..default()
         }))
+        .add_plugins(TweeningPlugin)
         .add_plugins(GamePlugin)
         .add_systems(Startup, init_window)
         .run();
