@@ -8,6 +8,7 @@ use crate::{
     loading::{FontAssets, TextureAssets},
     mouse_control::Clickable,
     statistics::Statistics,
+    summoning::InventoryItems,
     BattleCount, GameState,
 };
 
@@ -254,6 +255,7 @@ fn handle_menu_button(
     mut next_state: ResMut<NextState<GameState>>,
     mut battle_count: ResMut<BattleCount>,
     mut statistics: ResMut<Statistics>,
+    mut inventory_items: ResMut<InventoryItems>,
     query: Query<&Clickable, With<MenuButton>>,
 ) {
     let clickable = query.single();
@@ -265,6 +267,7 @@ fn handle_menu_button(
     battle_count.0 = 1;
     statistics.elapsed_seconds = 0.;
     statistics.summoned_minions = 0;
+    inventory_items.0.clear();
 
     next_state.set(GameState::Menu);
 }

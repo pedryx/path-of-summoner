@@ -246,7 +246,7 @@ fn spawn_enemy_cards(
             max_hp: hp_tier as f32 * 10.,
             hp_regeneration: hp_regeneration_tier as f32 * 1.,
             damage: damage_tier as f32 * 4.,
-            speed: speed_tier as f32 * 1.,
+            speed: speed_tier as f32 * 0.2,
             ..Default::default()
         };
 

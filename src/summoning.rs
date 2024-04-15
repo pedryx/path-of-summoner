@@ -426,7 +426,7 @@ fn summon_minion(
     let mut stats = Stats {
         current_hp: 10.,
         max_hp: 10.,
-        speed: 1.,
+        speed: 0.66666,
         damage: 1.,
         ..Default::default()
     };
@@ -437,7 +437,7 @@ fn summon_minion(
                 stats.current_hp += 10. * item.tier as f32;
             }
             SummoningItemType::HPRegeneration => stats.hp_regeneration += 0.5 * item.tier as f32,
-            SummoningItemType::Speed => stats.speed += 1. * item.tier as f32,
+            SummoningItemType::Speed => stats.speed += 0.1 * item.tier as f32,
             SummoningItemType::Damage => stats.damage += 2. * item.tier as f32,
         }
     }

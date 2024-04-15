@@ -26,6 +26,8 @@ impl Plugin for BattlePlugin {
         app.add_plugins(EffectsPlugin)
             .add_event::<MinionAttackEvent>()
             .add_event::<EnemyAttackEvent>()
+            .add_event::<MinionDiedEvent>()
+            .add_event::<EnemyDiedEvent>()
             .add_systems(
                 OnEnter(GameScreen::Battle),
                 (prepare_battle, prepare_battle_screen),
@@ -67,6 +69,12 @@ pub struct EnemyAttackEvent {
     attacker: Entity,
     target: Entity,
 }
+
+#[derive(Event)]
+pub struct EnemyDiedEvent;
+
+#[derive(Event)]
+pub struct MinionDiedEvent;
 
 fn prepare_battle(
     mut commands: Commands,
@@ -114,11 +122,11 @@ pub fn update_battle(
             if battle_participant.turn_accumulator >= 1. / stats.speed {
                 battle_participant.turn_accumulator -= 1. / stats.speed;
 
+                enemy_stats.current_hp -= stats.damage;
                 println!(
                     "minion attacking for {}, enemy has {} hp",
                     stats.damage, enemy_stats.current_hp
                 );
-                enemy_stats.current_hp -= stats.damage;
                 minion_attack_event.send(MinionAttackEvent {
                     attacker: entity,
                     target: enemy_entity,
@@ -135,11 +143,11 @@ pub fn update_battle(
                 .iter_mut()
                 .nth(battle_rng.0.gen_range(0..minion_count.0));
             if let Some((entity, _, mut stats)) = target {
+                stats.current_hp -= enemy_stats.damage;
                 println!(
                     "enemy attacking for {}, minion has {} hp",
                     enemy_stats.damage, stats.current_hp
                 );
-                stats.current_hp -= enemy_stats.damage;
                 enemy_attack_event.send(EnemyAttackEvent {
                     attacker: enemy_entity,
                     target: entity,
@@ -151,6 +159,7 @@ pub fn update_battle(
 
 fn handle_enemy_dead(
     mut commands: Commands,
+    mut enemy_died_event: EventWriter<EnemyDiedEvent>,
     mut next_screen: ResMut<NextState<GameScreen>>,
     mut inventory_items: ResMut<InventoryItems>,
     mut battle_count: ResMut<BattleCount>,
@@ -174,6 +183,8 @@ fn handle_enemy_dead(
         }
     }
 
+    enemy_died_event.send(EnemyDiedEvent);
+
     // battle win
     battle_count.0 += 1;
     commands.entity(entity).despawn_recursive();
@@ -182,10 +193,10 @@ fn handle_enemy_dead(
 
 fn handle_minion_dead(
     mut commands: Commands,
+    mut minion_died_event: EventWriter<MinionDiedEvent>,
     mut next_screen: ResMut<NextState<GameScreen>>,
     mut next_state: ResMut<NextState<GameState>>,
     mut minion_count: ResMut<MinionCount>,
-    mut inventory_items: ResMut<InventoryItems>,
     minion_query: Query<(Entity, &Stats), With<Minion>>,
     enemy_query: Query<Entity, With<Enemy>>,
 ) {
@@ -197,9 +208,10 @@ fn handle_minion_dead(
         commands.entity(entity).despawn_recursive();
         minion_count.0 -= 1;
 
+        minion_died_event.send(MinionDiedEvent);
+
         // game over
         if minion_count.0 == 0 {
-            inventory_items.0.clear();
             if enemy_query.iter().next().is_some() {
                 commands.entity(enemy_query.single()).despawn_recursive();
             }

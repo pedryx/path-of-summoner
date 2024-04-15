@@ -35,6 +35,20 @@ pub struct FontAssets {
 
 #[derive(AssetCollection, Resource)]
 pub struct AudioAssets {
+    #[asset(path = "audio/battle/sword_sound.ogg")]
+    pub minion_attack: Handle<AudioSource>,
+    #[asset(path = "audio/battle/hurt_male.ogg")]
+    pub minion_hurt: Handle<AudioSource>,
+    #[asset(path = "audio/battle/man_dies.ogg")]
+    pub minion_died: Handle<AudioSource>,
+
+    #[asset(path = "audio/battle/monster_bite.ogg")]
+    pub enemy_attack: Handle<AudioSource>,
+    #[asset(path = "audio/battle/demon_pain.ogg")]
+    pub enemy_hurt: Handle<AudioSource>,
+    #[asset(path = "audio/battle/demon_dying.ogg")]
+    pub enemy_died: Handle<AudioSource>,
+
     #[asset(path = "audio/eerie_ambience.ogg")]
     pub ambient: Handle<AudioSource>,
     #[asset(path = "audio/spooky_halloween_soundtrack.ogg")]
