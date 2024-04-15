@@ -6,8 +6,8 @@ use crate::{
 use bevy::prelude::*;
 
 const TEXT_SIZE: f32 = 40.;
-const HIGHLIGHT_Z: f32 = 1000.;
-const TEXT_Z: f32 = 1001.;
+const HIGHLIGHT_Z: f32 = 500.;
+const TEXT_Z: f32 = 501.;
 const HIGHLIGHT_TRANSPARENCY: f32 = 0.2;
 
 const ITEMS_TEXT_POS: Vec2 = Vec2::new(-615., 60.);
@@ -30,7 +30,7 @@ impl Plugin for TutorialPlugin {
             .add_systems(OnEnter(TutorialState::None), clean_up_tutorial)
             .add_systems(
                 OnEnter(TutorialState::Summoning),
-                show_summoning_tutorial.run_if(resource_equals(FirstTutorial(false))),
+                show_summoning_tutorial,
             )
             .add_systems(
                 OnEnter(GameScreen::Summoning),
@@ -38,7 +38,7 @@ impl Plugin for TutorialPlugin {
             )
             .add_systems(
                 OnEnter(TutorialState::Planning),
-                show_planning_tutorial.run_if(resource_equals(FirstTutorial(false))),
+                show_planning_tutorial,
             )
             .add_systems(
                 OnEnter(GameScreen::Planning),
