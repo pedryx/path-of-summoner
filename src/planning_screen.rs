@@ -5,7 +5,11 @@ use crate::{
     enemy::{DropRewards, Enemy},
     loading::{FontAssets, TextureAssets},
     mouse_control::Clickable,
-    stats::Stats,
+    stats::{
+        Stats, BATTLES_TO_ENEMY_TIER_INC, BATTLES_TO_ITEM_TIER_INC, ENEMY_DMG_BASE, ENEMY_DMG_INC,
+        ENEMY_HP_BASE, ENEMY_HP_INC, ENEMY_HP_REGEN_BASE, ENEMY_HP_REGEN_INC, ENEMY_SPEED_BASE,
+        ENEMY_SPEED_INC,
+    },
     summoning::{SummoningItem, SummoningItemType},
     utils::num_to_roman,
     BattleCount, GameScreen, GameState,
@@ -221,32 +225,32 @@ fn spawn_enemy_cards(
     fonts: Res<FontAssets>,
     battle_count: Res<BattleCount>,
 ) {
-    let card_count = planning_rng.0.gen_range(1..=MAX_CARD_COUNT);
+    let card_count = planning_rng.0.gen_range(2..=MAX_CARD_COUNT);
 
     for i in 0..card_count {
         let damage_tier = planning_rng
             .0
-            .gen_range(1..(battle_count.0 / 2 + 2))
+            .gen_range(0..(battle_count.0 / BATTLES_TO_ENEMY_TIER_INC + 2))
             .min(10) as u8;
         let speed_tier = planning_rng
             .0
-            .gen_range(1..(battle_count.0 / 2 + 2))
+            .gen_range(0..(battle_count.0 / BATTLES_TO_ENEMY_TIER_INC + 2))
             .min(10) as u8;
         let hp_tier = planning_rng
             .0
-            .gen_range(1..(battle_count.0 / 2 + 2))
+            .gen_range(0..(battle_count.0 / BATTLES_TO_ENEMY_TIER_INC + 2))
             .min(10) as u8;
         let hp_regeneration_tier = planning_rng
             .0
-            .gen_range(0..(battle_count.0 / 2 + 1))
+            .gen_range(0..(battle_count.0 / BATTLES_TO_ENEMY_TIER_INC + 2))
             .min(10) as u8;
 
         let stats = Stats {
-            current_hp: hp_tier as f32 * 10.,
-            max_hp: hp_tier as f32 * 10.,
-            hp_regeneration: hp_regeneration_tier as f32 * 1.,
-            damage: damage_tier as f32 * 4.,
-            speed: speed_tier as f32 * 0.2,
+            current_hp: ENEMY_HP_BASE + hp_tier as f32 * ENEMY_HP_INC,
+            max_hp: ENEMY_HP_BASE + hp_tier as f32 * ENEMY_HP_INC,
+            hp_regeneration: ENEMY_HP_REGEN_BASE + hp_regeneration_tier as f32 * ENEMY_HP_REGEN_INC,
+            damage: ENEMY_DMG_BASE + damage_tier as f32 * ENEMY_DMG_INC,
+            speed: ENEMY_SPEED_BASE + speed_tier as f32 * ENEMY_SPEED_INC,
             ..Default::default()
         };
 
@@ -263,7 +267,7 @@ fn spawn_enemy_cards(
                 },
                 tier: planning_rng
                     .0
-                    .gen_range(1..(battle_count.0 / 2 + 2))
+                    .gen_range(1..(battle_count.0 / BATTLES_TO_ITEM_TIER_INC + 2))
                     .min(10) as u8,
                 quantity: 1,
             });

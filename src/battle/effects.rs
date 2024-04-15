@@ -35,7 +35,7 @@ impl Plugin for EffectsPlugin {
         .add_systems(
             Update,
             (handle_minion_died_effect, handle_enemy_died_effect)
-                .run_if(in_state(GameState::Playing)),
+                .run_if(in_state(GameState::Playing).or_else(in_state(GameState::GameOver))),
         );
     }
 }

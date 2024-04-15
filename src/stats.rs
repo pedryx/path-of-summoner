@@ -1,6 +1,29 @@
 use crate::{GameScreen, GameState};
 use bevy::prelude::*;
 
+pub const MINION_HP_BASE: f32 = 80.0;
+pub const MINION_HP_REGEN_BASE: f32 = 0.0;
+pub const MINION_DMG_BASE: f32 = 19.0;
+pub const MINION_SPEED_BASE: f32 = 0.7;
+
+pub const MINION_HP_INC: f32 = 11.0;
+pub const MINION_HP_REGEN_INC: f32 = 2.0;
+pub const MINION_DMG_INC: f32 = 4.0;
+pub const MINION_SPEED_INC: f32 = 0.16;
+
+pub const ENEMY_HP_BASE: f32 = 140.0;
+pub const ENEMY_HP_REGEN_BASE: f32 = 0.0;
+pub const ENEMY_DMG_BASE: f32 = 25.0;
+pub const ENEMY_SPEED_BASE: f32 = 0.8;
+
+pub const ENEMY_HP_INC: f32 = 13.0;
+pub const ENEMY_HP_REGEN_INC: f32 = 4.5;
+pub const ENEMY_DMG_INC: f32 = 5.0;
+pub const ENEMY_SPEED_INC: f32 = 0.2;
+
+pub const BATTLES_TO_ITEM_TIER_INC: usize = 2;
+pub const BATTLES_TO_ENEMY_TIER_INC: usize = 2;
+
 pub struct StatsPlugin;
 
 impl Plugin for StatsPlugin {

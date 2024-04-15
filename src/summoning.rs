@@ -4,7 +4,10 @@ use crate::{
     minions::{Minion, MAX_MINION_COUNT, MINION_SIZE},
     mouse_control::Clickable,
     statistics::Statistics,
-    stats::Stats,
+    stats::{
+        Stats, MINION_DMG_BASE, MINION_DMG_INC, MINION_HP_BASE, MINION_HP_INC,
+        MINION_HP_REGEN_BASE, MINION_HP_REGEN_INC, MINION_SPEED_BASE, MINION_SPEED_INC,
+    },
     utils::num_to_roman,
     BattleCount, GameScreen, GameState,
 };
@@ -424,21 +427,24 @@ fn summon_minion(
     }
 
     let mut stats = Stats {
-        current_hp: 10.,
-        max_hp: 10.,
-        speed: 0.66666,
-        damage: 1.,
+        current_hp: MINION_HP_BASE,
+        max_hp: MINION_HP_BASE,
+        speed: MINION_SPEED_BASE,
+        damage: MINION_DMG_BASE,
+        hp_regeneration: MINION_HP_REGEN_BASE,
         ..Default::default()
     };
     for item in ingredient_items.0.iter() {
         match item.item_type {
             SummoningItemType::MaxHP => {
-                stats.max_hp += 10. * item.tier as f32;
-                stats.current_hp += 10. * item.tier as f32;
+                stats.max_hp += MINION_HP_INC * item.tier as f32;
+                stats.current_hp += MINION_HP_INC * item.tier as f32;
             }
-            SummoningItemType::HPRegeneration => stats.hp_regeneration += 0.5 * item.tier as f32,
-            SummoningItemType::Speed => stats.speed += 0.1 * item.tier as f32,
-            SummoningItemType::Damage => stats.damage += 2. * item.tier as f32,
+            SummoningItemType::HPRegeneration => {
+                stats.hp_regeneration += MINION_HP_REGEN_INC * item.tier as f32
+            }
+            SummoningItemType::Speed => stats.speed += MINION_SPEED_INC * item.tier as f32,
+            SummoningItemType::Damage => stats.damage += MINION_DMG_INC * item.tier as f32,
         }
     }
     let stats = stats;
