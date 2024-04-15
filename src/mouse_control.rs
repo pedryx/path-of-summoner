@@ -7,7 +7,7 @@ pub struct MouseControlPlugin;
 impl Plugin for MouseControlPlugin {
     fn build(&self, app: &mut App) {
         app.init_resource::<MouseInfo>().add_systems(
-            Update,
+            PreUpdate,
             (update_mouse_info, update_clickables).run_if(
                 in_state(GameState::Playing)
                     .or_else(in_state(GameState::GameOver))

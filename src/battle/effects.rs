@@ -36,7 +36,14 @@ impl Plugin for EffectsPlugin {
             Update,
             (handle_minion_died_effect, handle_enemy_died_effect)
                 .run_if(in_state(GameState::Playing).or_else(in_state(GameState::GameOver))),
-        );
+        )
+        .add_systems(OnExit(GameScreen::Battle), clean_up);
+    }
+}
+
+fn clean_up(mut commands: Commands, query: Query<Entity, With<Animator<Transform>>>) {
+    for entity in query.iter() {
+        commands.entity(entity).remove::<Animator<Transform>>();
     }
 }
 
