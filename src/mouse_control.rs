@@ -21,6 +21,10 @@ impl Plugin for MouseControlPlugin {
 pub struct Clickable {
     pub just_left_clicked: bool,
     pub just_right_clicked: bool,
+    pub current_hover: bool,
+    pub last_hover: bool,
+    pub hover_started: bool,
+    pub hover_ended: bool,
 }
 
 #[derive(Resource, Default)]
@@ -59,6 +63,8 @@ fn update_clickables(
     for (mut clickable, _, _, _) in query.iter_mut() {
         clickable.just_left_clicked = false;
         clickable.just_right_clicked = false;
+        clickable.last_hover = clickable.current_hover;
+        clickable.current_hover = false;
     }
 
     for (mut clickable, transform, image_handle, sprite) in query.iter_mut() {
@@ -79,10 +85,10 @@ fn update_clickables(
         if rect.contains(mouse_info.position) {
             clickable.just_left_clicked = mouse_info.just_left_pressed;
             clickable.just_right_clicked = mouse_info.just_right_pressed;
-
-            if mouse_info.just_right_pressed {
-                println!("right pressed!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
-            }
+            clickable.current_hover = true;
         }
+
+        clickable.hover_started = clickable.current_hover && !clickable.last_hover;
+        clickable.hover_ended = !clickable.current_hover && clickable.last_hover;
     }
 }

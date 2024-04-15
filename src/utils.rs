@@ -11,6 +11,6 @@ pub fn num_to_roman(num: u8) -> &'static str {
         8 => "VIII",
         9 => "IX",
         10 => "X",
-        _ => panic!("Number not supported!"),
+        _ => panic!("Number {} not supported!", num),
     }
 }

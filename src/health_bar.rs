@@ -4,8 +4,8 @@ use bevy::{
     sprite::{MaterialMesh2dBundle, Mesh2dHandle},
 };
 
-const HEALTH_BAR_BACKGROUND_Z: f32 = 100.;
-const HEALTH_BAR_FOREGROUND_Z: f32 = 101.;
+const HEALTH_BAR_BACKGROUND_Z: f32 = 40.;
+const HEALTH_BAR_FOREGROUND_Z: f32 = 41.;
 
 pub struct HealthBarPlugin;
 

@@ -6,8 +6,8 @@ use crate::{
 use bevy::prelude::*;
 
 const TEXT_SIZE: f32 = 40.;
-const HIGHLIGHT_Z: f32 = 100.;
-const TEXT_Z: f32 = 101.;
+const HIGHLIGHT_Z: f32 = 1000.;
+const TEXT_Z: f32 = 1001.;
 const HIGHLIGHT_TRANSPARENCY: f32 = 0.2;
 
 const ITEMS_TEXT_POS: Vec2 = Vec2::new(-615., 60.);
