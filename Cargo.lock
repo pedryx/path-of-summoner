@@ -539,21 +539,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "bevy_game"
-version = "0.1.0"
-dependencies = [
- "bevy",
- "bevy_asset_loader",
- "bevy_kira_audio",
- "bevy_tweening",
- "embed-resource",
- "image",
- "rand",
- "webbrowser",
- "winit",
-]
-
-[[package]]
 name = "bevy_gilrs"
 version = "0.13.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2771,6 +2756,21 @@ name = "path-slash"
 version = "0.2.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "1e91099d4268b0e11973f036e885d652fb0b21fedcf69738c627f94db6a44f42"
+
+[[package]]
+name = "path_of_summoner"
+version = "0.1.0"
+dependencies = [
+ "bevy",
+ "bevy_asset_loader",
+ "bevy_kira_audio",
+ "bevy_tweening",
+ "embed-resource",
+ "image",
+ "rand",
+ "webbrowser",
+ "winit",
+]
 
 [[package]]
 name = "percent-encoding"

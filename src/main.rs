@@ -6,8 +6,8 @@ use bevy::prelude::*;
 use bevy::window::{PrimaryWindow, WindowResolution};
 use bevy::winit::WinitWindows;
 use bevy::DefaultPlugins;
-use bevy_game::GamePlugin;
-use bevy_tweening::TweeningPlugin; // ToDo: Replace bevy_game with your new crate name.
+use path_of_summoner::GamePlugin;
+use bevy_tweening::TweeningPlugin;
 use std::io::Cursor;
 use winit::window::Icon;
 
@@ -18,7 +18,7 @@ fn main() {
         .insert_resource(ClearColor(Color::rgb(0.1, 0.1, 0.1)))
         .add_plugins(DefaultPlugins.set(WindowPlugin {
             primary_window: Some(Window {
-                title: "Bevy game".to_string(), // ToDo
+                title: "Path of Summoner".to_string(),
                 // Bind to canvas included in `index.html`
                 canvas: Some("#bevy".to_owned()),
                 // Tells wasm not to override default event handling, like F5 and Ctrl+R
