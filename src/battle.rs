@@ -1,4 +1,7 @@
+use std::time::Duration;
+
 use crate::{
+    audio::Soundtrack,
     enemy::{DropRewards, Enemy},
     health_bar::HealthBar,
     loading::TextureAssets,
@@ -8,7 +11,10 @@ use crate::{
     BattleCount, GameScreen, GameState,
 };
 use bevy::prelude::*;
+use bevy_kira_audio::{AudioInstance, AudioTween};
 use rand::{rngs::StdRng, Rng, SeedableRng};
+
+const VOLUME_TRANSITION: f32 = 0.5;
 
 pub struct BattlePlugin;
 
@@ -16,9 +22,9 @@ impl Plugin for BattlePlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(
             OnEnter(GameScreen::Battle),
-            (prepare_battle, spawn_background),
+            (prepare_battle, prepare_battle_screen),
         )
-        .add_systems(OnExit(GameScreen::Battle), despawn_background)
+        .add_systems(OnExit(GameScreen::Battle), clean_up_battle_screen)
         .add_systems(
             Update,
             (update_battle, handle_enemy_dead, handle_minion_dead)
@@ -167,7 +173,26 @@ fn handle_minion_dead(
     }
 }
 
-fn spawn_background(mut commands: Commands, textures: Res<TextureAssets>) {
+fn prepare_battle_screen(
+    mut commands: Commands,
+    mut audio_instances: ResMut<Assets<AudioInstance>>,
+    textures: Res<TextureAssets>,
+    soundtrack: Res<Soundtrack>,
+) {
+    // audio
+    audio_instances
+        .get_mut(&soundtrack.basic)
+        .unwrap()
+        .pause(AudioTween::linear(Duration::from_secs_f32(
+            VOLUME_TRANSITION,
+        )));
+    audio_instances
+        .get_mut(&soundtrack.battle)
+        .unwrap()
+        .resume(AudioTween::linear(Duration::from_secs_f32(
+            VOLUME_TRANSITION,
+        )));
+
     // background
     commands.spawn((
         SpriteBundle {
@@ -192,7 +217,26 @@ fn spawn_background(mut commands: Commands, textures: Res<TextureAssets>) {
     ));
 }
 
-fn despawn_background(mut commands: Commands, query: Query<Entity, With<BattleScreenEntity>>) {
+fn clean_up_battle_screen(
+    mut commands: Commands,
+    mut audio_instances: ResMut<Assets<AudioInstance>>,
+    soundtrack: Res<Soundtrack>,
+    query: Query<Entity, With<BattleScreenEntity>>,
+) {
+    // audio
+    audio_instances
+        .get_mut(&soundtrack.basic)
+        .unwrap()
+        .resume(AudioTween::linear(Duration::from_secs_f32(
+            VOLUME_TRANSITION,
+        )));
+    audio_instances
+        .get_mut(&soundtrack.battle)
+        .unwrap()
+        .pause(AudioTween::linear(Duration::from_secs_f32(
+            VOLUME_TRANSITION,
+        )));
+
     for entity in query.iter() {
         commands.entity(entity).despawn_recursive();
     }

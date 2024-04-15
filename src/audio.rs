@@ -1,56 +1,68 @@
-// use crate::actions::{set_movement_actions, Actions};
 use crate::loading::AudioAssets;
 use crate::GameState;
 use bevy::prelude::*;
 use bevy_kira_audio::prelude::*;
 
+const GLOBAL_VOLUME: f64 = 1.0;
+
 pub struct InternalAudioPlugin;
 
-// This plugin is responsible to control the game audio
 impl Plugin for InternalAudioPlugin {
     fn build(&self, app: &mut App) {
         app.add_plugins(AudioPlugin)
-            .add_systems(OnEnter(GameState::Playing), start_audio)
-            .add_systems(
-                Update,
-                control_flying_sound
-                    //.after(set_movement_actions)
-                    .run_if(in_state(GameState::Playing)),
-            );
+            .init_resource::<AudioInit>()
+            .init_resource::<Soundtrack>()
+            .add_systems(OnEnter(GameState::Menu), start_audio);
     }
 }
 
-#[derive(Resource)]
-struct FlyingAudio(Handle<AudioInstance>);
-
-fn start_audio(mut commands: Commands, audio_assets: Res<AudioAssets>, audio: Res<Audio>) {
-    audio.pause();
-    let handle = audio
-        .play(audio_assets.flying.clone())
-        .looped()
-        .with_volume(0.3)
-        .handle();
-    commands.insert_resource(FlyingAudio(handle));
+#[derive(Resource, Default)]
+pub struct Soundtrack {
+    pub basic: Handle<AudioInstance>,
+    pub battle: Handle<AudioInstance>,
+    pub game_over: Handle<AudioInstance>,
 }
 
-fn control_flying_sound(
-    //actions: Res<Actions>,
-    audio: Res<FlyingAudio>,
-    mut audio_instances: ResMut<Assets<AudioInstance>>,
+#[derive(Resource, Default)]
+struct AudioInit(bool);
+
+fn start_audio(
+    audio_assets: Res<AudioAssets>,
+    audio: Res<Audio>,
+    mut audio_init: ResMut<AudioInit>,
+    mut soundtrack: ResMut<Soundtrack>,
 ) {
-    if let Some(instance) = audio_instances.get_mut(&audio.0) {
-        match instance.state() {
-            PlaybackState::Paused { .. } => {
-                // if actions.player_movement.is_some() {
-                //     instance.resume(AudioTween::default());
-                // }
-            }
-            PlaybackState::Playing { .. } => {
-                // if actions.player_movement.is_none() {
-                //     instance.pause(AudioTween::default());
-                // }
-            }
-            _ => {}
-        }
+    if audio_init.0 {
+        return;
     }
+    audio_init.0 = true;
+
+    // ambient
+    audio
+        .play(audio_assets.ambient.clone())
+        .looped()
+        .with_volume(GLOBAL_VOLUME * 0.01);
+
+    // basic soundtrack
+    soundtrack.basic = audio
+        .play(audio_assets.soundtrack.clone())
+        .looped()
+        .with_volume(GLOBAL_VOLUME * 0.07)
+        .handle();
+
+    // battle soundtrack
+    soundtrack.battle = audio
+        .play(audio_assets.battle_soundtrack.clone())
+        .looped()
+        .with_volume(GLOBAL_VOLUME * 0.07)
+        .paused()
+        .handle();
+
+    // game over soundtrack
+    soundtrack.game_over = audio
+        .play(audio_assets.game_over_soundtrack.clone())
+        .looped()
+        .with_volume(GLOBAL_VOLUME * 0.07)
+        .paused()
+        .handle();
 }

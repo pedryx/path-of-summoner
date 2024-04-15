@@ -1,6 +1,10 @@
+use std::time::Duration;
+
 use bevy::prelude::*;
+use bevy_kira_audio::{AudioInstance, AudioTween};
 
 use crate::{
+    audio::Soundtrack,
     loading::{FontAssets, TextureAssets},
     mouse_control::Clickable,
     statistics::Statistics,
@@ -21,6 +25,8 @@ const MENU_BUTTON_TEXT_SIZE: f32 = 64.;
 
 const UI_X: f32 = -1920. / 4.;
 const MONSTER_X: f32 = 1920. / 4.;
+
+const VOLUME_TRANSITION: f32 = 0.5;
 
 pub struct GameOverPlugin;
 
@@ -43,11 +49,27 @@ struct MenuButton;
 
 fn spawn_entities(
     mut commands: Commands,
+    mut audio_instances: ResMut<Assets<AudioInstance>>,
     textures: Res<TextureAssets>,
     fonts: Res<FontAssets>,
     statistics: Res<Statistics>,
     battle_count: Res<BattleCount>,
+    soundtrack: Res<Soundtrack>,
 ) {
+    // audio
+    audio_instances
+        .get_mut(&soundtrack.basic)
+        .unwrap()
+        .pause(AudioTween::linear(Duration::from_secs_f32(
+            VOLUME_TRANSITION,
+        )));
+    audio_instances
+        .get_mut(&soundtrack.game_over)
+        .unwrap()
+        .resume(AudioTween::linear(Duration::from_secs_f32(
+            VOLUME_TRANSITION,
+        )));
+
     // background
     commands.spawn((
         SpriteBundle {
@@ -203,7 +225,26 @@ fn spawn_entities(
         });
 }
 
-fn despawn_entities(mut commands: Commands, query: Query<Entity, With<GameOverEntity>>) {
+fn despawn_entities(
+    mut commands: Commands,
+    mut audio_instances: ResMut<Assets<AudioInstance>>,
+    soundtrack: Res<Soundtrack>,
+    query: Query<Entity, With<GameOverEntity>>,
+) {
+    // audio
+    audio_instances
+        .get_mut(&soundtrack.game_over)
+        .unwrap()
+        .pause(AudioTween::linear(Duration::from_secs_f32(
+            VOLUME_TRANSITION,
+        )));
+    audio_instances
+        .get_mut(&soundtrack.basic)
+        .unwrap()
+        .resume(AudioTween::linear(Duration::from_secs_f32(
+            VOLUME_TRANSITION,
+        )));
+
     for entity in query.iter() {
         commands.entity(entity).despawn_recursive();
     }
