@@ -123,7 +123,7 @@ pub fn update_battle(
                 battle_participant.turn_accumulator -= 1. / stats.speed;
 
                 enemy_stats.current_hp -= stats.damage;
-                println!(
+                info!(
                     "minion attacking for {}, enemy has {} hp",
                     stats.damage, enemy_stats.current_hp
                 );
@@ -144,7 +144,7 @@ pub fn update_battle(
                 .nth(battle_rng.0.gen_range(0..minion_count.0));
             if let Some((entity, _, mut stats)) = target {
                 stats.current_hp -= enemy_stats.damage;
-                println!(
+                info!(
                     "enemy attacking for {}, minion has {} hp",
                     enemy_stats.damage, stats.current_hp
                 );

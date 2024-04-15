@@ -558,13 +558,35 @@ fn unmake_minions_clickable(mut commands: Commands, query: Query<Entity, With<Mi
     }
 }
 
-fn handle_remove_minion(mut commands: Commands, query: Query<(Entity, &Clickable), With<Minion>>) {
-    for (entity, clickable) in query.iter() {
+fn handle_remove_minion(
+    mut commands: Commands,
+    mut query: Query<(Entity, &mut Transform, &Clickable), With<Minion>>,
+) {
+    let mut removed = None;
+
+    for (entity, _, clickable) in query.iter() {
         if !clickable.just_right_clicked {
             continue;
         }
 
         commands.entity(entity).despawn_recursive();
+        removed = Some(entity);
+    }
+
+    if removed.is_none() {
+        return;
+    }
+
+    for (index, (_, mut transform, _)) in query
+        .iter_mut()
+        .filter(|&(e, _, _)| e != removed.unwrap())
+        .enumerate()
+    {
+        transform.translation = Vec3::new(
+            1920. / (MAX_MINION_COUNT as f32 + 2.) * (index as f32 + 1.) - 1920. / 2.,
+            MINIONS_Y,
+            0.,
+        );
     }
 }
 

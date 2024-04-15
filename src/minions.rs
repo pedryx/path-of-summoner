@@ -67,8 +67,6 @@ fn spawn_icon(
     position: Vec3,
     tier: u8,
 ) {
-    println!("tier: {}", tier);
-
     // tier number
     parent.spawn(Text2dBundle {
         text: Text {
@@ -110,7 +108,6 @@ fn handle_minion_stats_hover(
 ) {
     for (entity, clickable, stats) in minion_query.iter() {
         if clickable.hover_ended {
-            println!("despawning");
             for entity in hover_window_query.iter() {
                 commands.entity(entity).despawn_recursive();
             }
