@@ -2,13 +2,13 @@ use crate::{
     health_bar::HealthBar,
     loading::{FontAssets, TextureAssets},
     minions::{Minion, MAX_MINION_COUNT, MINION_SIZE},
-    mouse_control::{Clickable, MouseInfo},
+    mouse_control::Clickable,
     statistics::Statistics,
     stats::Stats,
     utils::num_to_roman,
     BattleCount, GameScreen, GameState,
 };
-use bevy::{prelude::*, transform::TransformSystem};
+use bevy::prelude::*;
 
 const INVENTORY_POS: Vec3 = Vec3::new(-1920. / 4. - 128., 1080. / 2. - 64., 0.);
 const INVENTORY_SIZE: Vec2 = Vec2::new(600., 800.);
@@ -30,7 +30,7 @@ impl Plugin for SummoningPlugin {
                 should_recreate_ingredient_items: false,
                 should_recreate_inventory_items: false,
             })
-            .init_resource::<DragActive>()
+            //.init_resource::<DragActive>()
             .add_systems(
                 OnEnter(GameScreen::Summoning),
                 (
@@ -49,20 +49,13 @@ impl Plugin for SummoningPlugin {
                 (
                     spawn_inventory_cards,
                     spawn_ingredient_cards,
-                    handle_drag_move,
-                    handle_drag_end,
                     summon_minion,
                     move_to_preparation_screen,
                     handle_remove_minion,
-                    handle_remove_item_card,
+                    handle_delete_item,
+                    handle_move_item,
                 )
                     .run_if(in_state(GameState::Playing).and_then(in_state(GameScreen::Summoning))),
-            )
-            .add_systems(
-                PostUpdate,
-                handle_drag_start
-                    .run_if(in_state(GameState::Playing).and_then(in_state(GameScreen::Summoning)))
-                    .after(TransformSystem::TransformPropagate),
             );
     }
 }
@@ -92,12 +85,6 @@ struct IngredientInventory;
 struct ItemCard(usize);
 
 #[derive(Component)]
-struct DragItem(usize);
-
-#[derive(Component)]
-struct Draggable;
-
-#[derive(Component)]
 struct SummoningCircle;
 
 #[derive(Component)]
@@ -108,9 +95,6 @@ pub struct InventoryItems(pub Vec<SummoningItem>);
 
 #[derive(Resource, Default)]
 struct IngredientItems(Vec<SummoningItem>);
-
-#[derive(Resource, Default)]
-struct DragActive(bool);
 
 #[derive(Component)]
 struct SummoningScreenEntity;
@@ -155,9 +139,7 @@ fn spawn_item_card(
         .id();
 
     if !is_ingredient {
-        commands
-            .entity(card_entity)
-            .insert((Draggable, InInventoryItem));
+        commands.entity(card_entity).insert(InInventoryItem);
 
         let quantity_entity = commands
             .spawn(Text2dBundle {
@@ -422,108 +404,6 @@ fn spawn_inventories_and_circle(
         });
 }
 
-fn handle_drag_start(
-    mut commands: Commands,
-    textures: Res<TextureAssets>,
-    mouse_info: Res<MouseInfo>,
-    mut drag_active: ResMut<DragActive>,
-    item_card_query: Query<(&GlobalTransform, &ItemCard), With<Draggable>>,
-) {
-    if drag_active.0 || !mouse_info.pressed {
-        return;
-    }
-
-    for (transform, item_card) in item_card_query.iter() {
-        let rect = Rect {
-            min: transform.translation().xy() - ITEM_CARD_SIZE / 2.,
-            max: transform.translation().xy() + ITEM_CARD_SIZE / 2.,
-        };
-
-        if !rect.contains(mouse_info.position) {
-            continue;
-        }
-
-        drag_active.0 = true;
-        commands.spawn((
-            SpriteBundle {
-                texture: textures.circle.clone(),
-                sprite: Sprite {
-                    color: Color::RED,
-                    custom_size: Some(Vec2::splat(32.)),
-                    ..Default::default()
-                },
-                transform: Transform::from_translation(mouse_info.position.extend(4.)),
-                ..Default::default()
-            },
-            DragItem(item_card.0),
-        ));
-    }
-}
-
-fn handle_drag_move(
-    mouse_info: Res<MouseInfo>,
-    drag_active: ResMut<DragActive>,
-    mut dragged_item: Query<&mut Transform, With<DragItem>>,
-) {
-    if !drag_active.0 {
-        return;
-    }
-
-    let mut transform = dragged_item.single_mut();
-
-    transform.translation.x = mouse_info.position.x;
-    transform.translation.y = mouse_info.position.y;
-}
-
-fn handle_drag_end(
-    mut commands: Commands,
-    mouse_info: Res<MouseInfo>,
-    mut drag_active: ResMut<DragActive>,
-    mut inventory_items: ResMut<InventoryItems>,
-    mut ingredient_items: ResMut<IngredientItems>,
-    mut should_recreate_item_cards: ResMut<ShouldRecreateItemCards>,
-    mut drag_item: Query<(Entity, &DragItem)>,
-) {
-    if !drag_active.0 {
-        return;
-    }
-
-    let (entity, drag_item) = drag_item.single_mut();
-
-    if mouse_info.pressed {
-        return;
-    }
-
-    commands.entity(entity).despawn_recursive();
-    drag_active.0 = false;
-
-    let rect = Rect {
-        min: SUMMONING_CIRCLE_POS.xy() - Vec2::splat(256.),
-        max: SUMMONING_CIRCLE_POS.xy() + Vec2::splat(256.),
-    };
-    if !rect.contains(mouse_info.position) {
-        return;
-    }
-
-    let item = &mut inventory_items.0[drag_item.0];
-    let is_duplicate = ingredient_items
-        .0
-        .iter()
-        .any(|ingredient| ingredient.item_type == item.item_type);
-
-    if !is_duplicate {
-        ingredient_items.0.push(item.clone());
-
-        item.quantity -= 1;
-        if item.quantity == 0 {
-            inventory_items.0.remove(drag_item.0);
-        }
-    }
-
-    should_recreate_item_cards.should_recreate_inventory_items = true;
-    should_recreate_item_cards.should_recreate_ingredient_items = true;
-}
-
 fn summon_minion(
     mut commands: Commands,
     textures: Res<TextureAssets>,
@@ -682,7 +562,7 @@ fn handle_remove_minion(mut commands: Commands, query: Query<(Entity, &Clickable
     }
 }
 
-fn handle_remove_item_card(
+fn handle_delete_item(
     mut commands: Commands,
     mut inventory_items: ResMut<InventoryItems>,
     mut recreate_items: ResMut<ShouldRecreateItemCards>,
@@ -696,5 +576,55 @@ fn handle_remove_item_card(
         inventory_items.0.remove(index);
         commands.entity(entity).despawn_recursive();
         recreate_items.should_recreate_inventory_items = true;
+    }
+}
+
+fn handle_move_item(
+    mut recreate_items: ResMut<ShouldRecreateItemCards>,
+    mut inventory_items: ResMut<InventoryItems>,
+    mut ingredient_items: ResMut<IngredientItems>,
+    inventory_query: Query<(&Clickable, &ItemCard), With<InInventoryItem>>,
+    ingredient_query: Query<(&Clickable, &ItemCard), Without<InInventoryItem>>,
+) {
+    // handle move of inventory items
+    for (clickable, &ItemCard(index)) in inventory_query.iter() {
+        if !clickable.just_left_clicked {
+            continue;
+        }
+
+        let item = &mut inventory_items.0[index];
+        let is_duplicate = ingredient_items.0.iter().any(|ingredient| ingredient.item_type == item.item_type);
+        if !is_duplicate {
+            ingredient_items.0.push(item.clone());
+
+            item.quantity -= 1;
+            if item.quantity == 0 {
+                inventory_items.0.remove(index);
+            }
+
+            recreate_items.should_recreate_inventory_items = true;
+            recreate_items.should_recreate_ingredient_items = true;
+        }
+    }
+
+    // handle move of ingredient items
+    for (clickable, &ItemCard(index)) in ingredient_query.iter() {
+        if !clickable.just_left_clicked {
+            continue;
+        }
+
+        let ingredient = ingredient_items.0.remove(index);
+        if let Some(item) = inventory_items
+            .0
+            .iter_mut()
+            .find(|item| item.item_type == ingredient.item_type && item.tier == ingredient.tier)
+        {
+            item.quantity += ingredient.quantity;
+        } else if inventory_items.0.len() < MAX_ITEM_COUNT {
+            inventory_items.0.push(ingredient);
+        }
+
+        recreate_items.should_recreate_inventory_items = true;
+        recreate_items.should_recreate_ingredient_items = true;
     }
 }
