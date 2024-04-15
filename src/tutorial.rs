@@ -28,18 +28,12 @@ impl Plugin for TutorialPlugin {
                 handle_tutorial_control.run_if(in_state(GameState::Playing)),
             )
             .add_systems(OnEnter(TutorialState::None), clean_up_tutorial)
-            .add_systems(
-                OnEnter(TutorialState::Summoning),
-                show_summoning_tutorial,
-            )
+            .add_systems(OnEnter(TutorialState::Summoning), show_summoning_tutorial)
             .add_systems(
                 OnEnter(GameScreen::Summoning),
                 show_summoning_tutorial.run_if(resource_equals(FirstTutorial(true))),
             )
-            .add_systems(
-                OnEnter(TutorialState::Planning),
-                show_planning_tutorial,
-            )
+            .add_systems(OnEnter(TutorialState::Planning), show_planning_tutorial)
             .add_systems(
                 OnEnter(GameScreen::Planning),
                 show_planning_tutorial.run_if(resource_equals(FirstTutorial(true))),

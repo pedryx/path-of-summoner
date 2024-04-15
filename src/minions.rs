@@ -67,6 +67,8 @@ fn spawn_icon(
     position: Vec3,
     tier: u8,
 ) {
+    println!("tier: {}", tier);
+
     // tier number
     parent.spawn(Text2dBundle {
         text: Text {
@@ -139,7 +141,7 @@ fn handle_minion_stats_hover(
                 let x = HOVER_WINDOW_SIZE.x / 4.;
                 let y = HOVER_WINDOW_SIZE.y / 4.;
 
-                let tier = ((stats.damage - MINION_DMG_BASE) / MINION_DMG_INC) as u8;
+                let tier = ((stats.damage - MINION_DMG_BASE) / MINION_DMG_INC).ceil() as u8;
                 spawn_icon(
                     parent,
                     fonts.tier_numbers.clone(),
@@ -148,7 +150,7 @@ fn handle_minion_stats_hover(
                     tier,
                 );
 
-                let tier = ((stats.speed - MINION_SPEED_BASE) / MINION_SPEED_INC) as u8;
+                let tier = ((stats.speed - MINION_SPEED_BASE) / MINION_SPEED_INC).ceil() as u8;
                 spawn_icon(
                     parent,
                     fonts.tier_numbers.clone(),
@@ -157,7 +159,7 @@ fn handle_minion_stats_hover(
                     tier,
                 );
 
-                let tier = ((stats.max_hp - MINION_HP_BASE) / MINION_HP_INC) as u8;
+                let tier = ((stats.max_hp - MINION_HP_BASE) / MINION_HP_INC).ceil() as u8;
                 spawn_icon(
                     parent,
                     fonts.tier_numbers.clone(),
@@ -166,8 +168,8 @@ fn handle_minion_stats_hover(
                     tier,
                 );
 
-                let tier =
-                    ((stats.hp_regeneration - MINION_HP_REGEN_BASE) / MINION_HP_REGEN_INC) as u8;
+                let tier = ((stats.hp_regeneration - MINION_HP_REGEN_BASE) / MINION_HP_REGEN_INC)
+                    .ceil() as u8;
                 spawn_icon(
                     parent,
                     fonts.tier_numbers.clone(),
