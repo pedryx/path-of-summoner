@@ -23,7 +23,7 @@ pub struct EffectsPlugin;
 impl Plugin for EffectsPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(
-            Update,
+            PostUpdate,
             (
                 handle_minion_attack_effect,
                 handle_enemy_attack_effect,
@@ -33,7 +33,7 @@ impl Plugin for EffectsPlugin {
                 .run_if(in_state(GameScreen::Battle).and_then(in_state(GameState::Playing))),
         )
         .add_systems(
-            Update,
+            PostUpdate,
             (handle_minion_died_effect, handle_enemy_died_effect)
                 .run_if(in_state(GameState::Playing).or_else(in_state(GameState::GameOver))),
         )

@@ -2,7 +2,7 @@ use crate::{
     health_bar::HealthBar,
     loading::{FontAssets, TextureAssets},
     minions::{Minion, MAX_MINION_COUNT, MINION_SIZE},
-    mouse_control::Clickable,
+    mouse_control::{update_clickables, Clickable},
     statistics::Statistics,
     stats::{
         Stats, MINION_DMG_BASE, MINION_DMG_INC, MINION_HP_BASE, MINION_HP_INC,
@@ -50,14 +50,18 @@ impl Plugin for SummoningPlugin {
             .add_systems(
                 Update,
                 (
-                    spawn_inventory_cards,
-                    spawn_ingredient_cards,
                     summon_minion,
                     move_to_preparation_screen,
                     handle_remove_minion,
                     handle_delete_item,
                     handle_move_item,
                 )
+                    .run_if(in_state(GameState::Playing).and_then(in_state(GameScreen::Summoning))),
+            )
+            .add_systems(
+                PreUpdate,
+                (spawn_inventory_cards, spawn_ingredient_cards)
+                    .after(update_clickables)
                     .run_if(in_state(GameState::Playing).and_then(in_state(GameScreen::Summoning))),
             );
     }

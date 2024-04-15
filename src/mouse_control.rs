@@ -8,11 +8,15 @@ impl Plugin for MouseControlPlugin {
     fn build(&self, app: &mut App) {
         app.init_resource::<MouseInfo>().add_systems(
             PreUpdate,
-            (update_mouse_info, update_clickables).run_if(
-                in_state(GameState::Playing)
-                    .or_else(in_state(GameState::GameOver))
-                    .and_then(in_state(TutorialState::None)),
-            ),
+            (
+                update_mouse_info,
+                update_clickables.after(update_mouse_info),
+            )
+                .run_if(
+                    in_state(GameState::Playing)
+                        .or_else(in_state(GameState::GameOver))
+                        .and_then(in_state(TutorialState::None)),
+                ),
         );
     }
 }
@@ -35,7 +39,7 @@ pub struct MouseInfo {
     pub just_right_pressed: bool,
 }
 
-fn update_mouse_info(
+pub fn update_mouse_info(
     buttons: Res<ButtonInput<MouseButton>>,
     window: Query<&Window, With<PrimaryWindow>>,
     camera: Query<(&Camera, &GlobalTransform), With<Camera2d>>,
@@ -55,7 +59,7 @@ fn update_mouse_info(
     mouse_info.just_right_pressed = buttons.just_pressed(MouseButton::Right);
 }
 
-fn update_clickables(
+pub fn update_clickables(
     assets: Res<Assets<Image>>,
     mouse_info: Res<MouseInfo>,
     mut query: Query<(&mut Clickable, &GlobalTransform, &Handle<Image>, &Sprite)>,
