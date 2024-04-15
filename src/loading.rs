@@ -52,16 +52,20 @@ pub struct TextureAssets {
     #[asset(path = "textures/github.png")]
     pub github: Handle<Image>,
 
-    #[asset(path = "textures/summoner_background.png")]
-    pub summoner_background: Handle<Image>,
-    #[asset(path = "textures/game_over_enemy.png")]
-    pub game_over_enemy: Handle<Image>,
+    #[asset(path = "textures/tutorial/tutorial_highlight_summoning.png")]
+    pub tutorial_highlight_summoning: Handle<Image>,
+    #[asset(path = "textures/tutorial/tutorial_highlight_planning.png")]
+    pub tutorial_highlight_planning: Handle<Image>,
 
-    #[asset(path = "textures/dungeon_floor_background.png")]
+    #[asset(path = "textures/backgrounds/summoner_background.png")]
+    pub summoner_background: Handle<Image>,
+    #[asset(path = "textures/backgrounds/dungeon_floor_background.png")]
     pub dungeon_floor_background: Handle<Image>,
-    #[asset(path = "textures/battleground_background.png")]
+    #[asset(path = "textures/backgrounds/battleground_background.png")]
     pub battleground_background: Handle<Image>,
 
+    #[asset(path = "textures/game_over_enemy.png")]
+    pub game_over_enemy: Handle<Image>,
     #[asset(path = "textures/summoning_circle.png")]
     pub summoning_circle: Handle<Image>,
     #[asset(path = "textures/minion.png")]
@@ -69,9 +73,9 @@ pub struct TextureAssets {
     #[asset(path = "textures/enemy1.png")]
     pub enemy1: Handle<Image>,
 
-    #[asset(path = "textures/square.png")]
+    #[asset(path = "textures/shapes/square.png")]
     pub square: Handle<Image>,
-    #[asset(path = "textures/circle.png")]
+    #[asset(path = "textures/shapes/circle.png")]
     pub circle: Handle<Image>,
 
     #[asset(path = "textures/icons/sword_icon.png")]

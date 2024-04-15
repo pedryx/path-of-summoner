@@ -13,6 +13,7 @@ mod planning_screen;
 mod statistics;
 mod stats;
 mod summoning;
+mod tutorial;
 mod utils;
 
 use crate::audio::InternalAudioPlugin;
@@ -29,6 +30,7 @@ use crate::planning_screen::PlanningScreenPlugin;
 use crate::statistics::StatisticsPlugin;
 use crate::stats::StatsPlugin;
 use crate::summoning::SummoningPlugin;
+use crate::tutorial::TutorialPlugin;
 
 #[cfg(debug_assertions)]
 use bevy::diagnostic::{FrameTimeDiagnosticsPlugin, LogDiagnosticsPlugin};
@@ -85,6 +87,7 @@ impl Plugin for GamePlugin {
                 PlanningScreenPlugin,
                 StatisticsPlugin,
                 GameOverPlugin,
+                TutorialPlugin,
             ));
 
         #[cfg(debug_assertions)]
