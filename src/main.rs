@@ -6,8 +6,8 @@ use bevy::prelude::*;
 use bevy::window::{PrimaryWindow, WindowResolution};
 use bevy::winit::WinitWindows;
 use bevy::DefaultPlugins;
-use path_of_summoner::GamePlugin;
 use bevy_tweening::TweeningPlugin;
+use path_of_summoner::GamePlugin;
 use std::io::Cursor;
 use winit::window::Icon;
 
