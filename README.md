@@ -9,5 +9,6 @@ In Path of Summoner, you take the role of a summoner tasked with saving the worl
 - Mouse: Interact with various elements by clicking on them, etc.
 
 # Links
+- [Ludum Dare](https://ldjam.com/events/ludum-dare/55/path-of-summoner)
 - [Itch.io](https://pedryx.itch.io/path-of-summoner)
 - [Trello](https://trello.com/b/MtghFnGH/path-of-summoner)
